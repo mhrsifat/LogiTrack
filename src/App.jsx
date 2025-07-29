@@ -44,6 +44,8 @@ import VehicleDetails from "./admin/VehicleDetails";
 // Error Page
 import NotFound from "./pages/NotFound";
 import Admin from "./admin/admin";
+import BookNow from "./pages/BookNow";
+import ApplyAsDriver from "./pages/ApplyAsDriver";
 
 function App() {
   return (
@@ -65,9 +67,11 @@ function App() {
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/booking-details" element={<BookingDetails />} />
-        <Route path="/booking-history" element={<BookingHistory />} />
+        <Route path="/booking-details" element={<BookingDetails />} />
+        <Route path="/book-now" element={<BookNow />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/applyasdriver" element={<ApplyAsDriver />} />
 
         {/* Admin Routes */}
         <Route path="/admin/vehicle-management" element={<VehicleManagement />} />

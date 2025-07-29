@@ -25,7 +25,6 @@ dist-ssr
 .env.production
 .env.development
 ztest
-src/components/Navbar.jsx
 backend/Plan
 backend/cornjob.php
 reference

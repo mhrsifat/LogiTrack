@@ -206,4 +206,61 @@ public static function delete($id)
     return $stmt->execute([$id]);
 }
 
+public function emailExists($email)
+{
+    $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE email = :email LIMIT 1");
+    $stmt->execute(['email' => $email]);
+    return $stmt->fetch() !== false;
+}
+
+public function usernameExists($username)
+{
+    $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE username = :username LIMIT 1");
+    $stmt->execute(['username' => $username]);
+    return $stmt->fetch() !== false;
+}
+
+ public function createdriver($data)
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO {$this->table} (name, username, email, phone, password, role, email_verified, status, created_at) VALUES (:name, :username, :email, :phone, :password, :role, :email_verified, :status, :created_at)");
+
+        $success = $stmt->execute([
+            ':name' => $data['name'],
+            ':username' => $data['username'],
+            ':email' => $data['email'],
+            ':phone' => $data['phone'],
+            ':password' => $data['password'],
+            ':role' => $data['role'],
+            ':email_verified' => $data['email_verified'],
+            ':status' => $data['status'],
+            ':created_at' => $data['created_at']
+        ]);
+
+        if ($success) {
+            return $this->pdo->lastInsertId();
+        }
+        return false;
+    }
+
+    public function existsByUsername($username)
+    {
+        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE username = :username LIMIT 1");
+        $stmt->execute([':username' => $username]);
+        return $stmt->fetch() ? true : false;
+    }
+
+    public function existsByEmail($email)
+    {
+        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetch() ? true : false;
+    }
+
+    public function existsByPhone($phone)
+    {
+        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE phone = :phone LIMIT 1");
+        $stmt->execute([':phone' => $phone]);
+        return $stmt->fetch() ? true : false;
+    }
+
 }

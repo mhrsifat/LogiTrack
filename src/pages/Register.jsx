@@ -256,6 +256,10 @@ const Register = () => {
           <Link to="/Login" className="text-blue-600 hover:underline">Login Now</Link>
         </p>
       </motion.form>
+      <motion.div className="">
+        <Link to="/applyasdriver" className="flex justify-center bg-blue-200 text-red-600">Apply As a Driver</Link>
+
+      </motion.div>
     </div>
   );
 };

@@ -16,6 +16,8 @@ $router->get('/', 'HomeController@index'); // Public Home Page
 // Auth Actions
 $router->post('/login', 'AuthController@login'); // User login
 $router->post('/register', 'AuthController@register'); // New user registration
+$router->post('/drivers/applyDriver', 'DriverApplicationController@applyFull');
+
 $router->post('/autologin', 'AuthController@autologin'); // Auto-login via token/session
 $router->post('/auth/logout', 'AuthController@logout'); // Logout current session
 $router->post('/auth/logout-all', 'AuthController@logoutFromAllDevices'); // Logout all sessions
@@ -64,6 +66,18 @@ $router->get('/bookings/{id}', 'BookingController@show'); // Show specific booki
 $router->post('/bookings', 'BookingController@store'); // Create new booking
 $router->put('/bookings/{id}', 'BookingController@update'); // Update booking info
 $router->delete('/bookings/{id}', 'BookingController@destroy'); // Cancel/delete booking
+
+
+/*
+|--------------------------------------------------------------------------
+| 🚀 Gig Management (Driver)
+|--------------------------------------------------------------------------
+| Post and view available transport gigs by drivers.
+*/
+
+$router->get('/gigs', 'GigController@index'); // List all gigs
+$router->get('/gigs/{id}', 'GigController@show'); // Show single gig
+$router->post('/gigs', 'GigController@store'); // Driver posts a new gig
 
 /*
 |--------------------------------------------------------------------------
