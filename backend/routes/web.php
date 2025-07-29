@@ -16,7 +16,7 @@ $router->get('/', 'HomeController@index'); // Public Home Page
 // Auth Actions
 $router->post('/login', 'AuthController@login'); // User login
 $router->post('/register', 'AuthController@register'); // New user registration
-$router->post('/drivers/applyDriver', 'DriverApplicationController@applyFull');
+$router->post('/drivers/applyDriver', 'DriverApplicationController@applyDriver');
 
 $router->post('/autologin', 'AuthController@autologin'); // Auto-login via token/session
 $router->post('/auth/logout', 'AuthController@logout'); // Logout current session
