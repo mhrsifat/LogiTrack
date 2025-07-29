@@ -220,27 +220,56 @@ public function usernameExists($username)
     return $stmt->fetch() !== false;
 }
 
- public function createdriver($data)
-    {
-        $stmt = $this->pdo->prepare("INSERT INTO {$this->table} (name, username, email, phone, password, role, email_verified, status, created_at) VALUES (:name, :username, :email, :phone, :password, :role, :email_verified, :status, :created_at)");
+public function createdriver($data)
+{
+    $stmt = $this->pdo->prepare("
+        INSERT INTO {$this->table} (
+            name, 
+            username, 
+            email, 
+            phone, 
+            password, 
+            role, 
+            email_verification_token, 
+            email_verification_expires, 
+            email_verified, 
+            status, 
+            created_at
+        ) VALUES (
+            :name, 
+            :username, 
+            :email, 
+            :phone, 
+            :password, 
+            :role, 
+            :email_verification_token, 
+            :email_verification_expires, 
+            :email_verified, 
+            :status, 
+            :created_at
+        )
+    ");
 
-        $success = $stmt->execute([
-            ':name' => $data['name'],
-            ':username' => $data['username'],
-            ':email' => $data['email'],
-            ':phone' => $data['phone'],
-            ':password' => $data['password'],
-            ':role' => $data['role'],
-            ':email_verified' => $data['email_verified'],
-            ':status' => $data['status'],
-            ':created_at' => $data['created_at']
-        ]);
+    $success = $stmt->execute([
+        ':name'                      => $data['name'],
+        ':username'                  => $data['username'],
+        ':email'                     => $data['email'],
+        ':phone'                     => $data['phone'],
+        ':password'                  => $data['password'],
+        ':role'                      => $data['role'],
+        ':email_verification_token' => $data['email_verification_token'],
+        ':email_verification_expires' => $data['email_verification_expires'],
+        ':email_verified'            => $data['email_verified'],
+        ':status'                    => $data['status'],
+        ':created_at'                => $data['created_at'],
+    ]);
 
-        if ($success) {
-            return $this->pdo->lastInsertId();
-        }
-        return false;
+    if ($success) {
+        return $this->pdo->lastInsertId();
     }
+
+    return false;
+}
 
     public function existsByUsername($username)
     {
