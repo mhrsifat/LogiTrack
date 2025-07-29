@@ -1,0 +1,93 @@
+// src/App.jsx
+
+// Core CSS
+import "./App.css";
+
+// React Router
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Global layout components
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+// =====================
+// Page Imports
+// =====================
+
+// Public Pages
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Services from "./pages/Services";
+import Contact from "./pages/Contact";
+
+// Auth Pages
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import EmailVerify from "./pages/EmailVerify";
+
+// User Pages
+import Profile from "./pages/Profile";
+import BookingDetails from "./pages/BookingDetails";
+import BookingHistory from "./pages/BookingHistory";
+import Dashboard from "./pages/Dashboard";
+import Support from "./pages/Support";
+
+// Admin Pages (in `pages`, not `admin`)
+import VehicleManagement from "./pages/VehicleManagement";
+import Users from "./admin/Users";
+
+// Vehicle Management CRUD (from `admin`)
+import VehicleList from "./admin/VehicleList";
+import VehicleForm from "./admin/VehicleForm";
+import VehicleDetails from "./admin/VehicleDetails";
+
+// Error Page
+import NotFound from "./pages/NotFound";
+import Admin from "./admin/admin";
+
+function App() {
+  return (
+    <Router>
+      <Header />
+
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/contact" element={<Contact />} />
+
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/email-verify" element={<EmailVerify />} />
+
+        {/* User Routes */}
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/booking-details" element={<BookingDetails />} />
+        <Route path="/booking-history" element={<BookingHistory />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/support" element={<Support />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
+        <Route path="/admin/users" element={<Users />} />
+
+        {/* Vehicle CRUD Routes */}
+        <Route path="/admin/vehicles" element={<VehicleList />} />
+        <Route path="/admin/vehicles/create" element={<VehicleForm />} />
+        <Route path="/admin/vehicles/edit/:id" element={<VehicleForm />} />
+        <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
+
+        <Route path="/admin/*" element={<Admin />} />
+
+        {/* 404 Fallback */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      <Footer />
+    </Router>
+  );
+}
+
+export default App;

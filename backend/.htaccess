@@ -1,0 +1,17 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Serve existing files and directories normally
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route all other requests to index.php
+RewriteRule ^ index.php [QSA,L]
+
+# Optional: prevent directory listing
+Options -Indexes
+
+<FilesMatch "^\.env.*">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
