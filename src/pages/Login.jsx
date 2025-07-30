@@ -8,7 +8,7 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 import Successfull from "../components/Successfull";
 import { BASE_URL } from "../config";
 import { useUser } from "../contexts/UserContext";
@@ -86,7 +86,7 @@ const Login = () => {
         <h2 className="text-2xl font-semibold mb-4 text-center text-teal-700">
           Login
         </h2>
-        {error && <Error msg={error} />}
+        {error && <ErrorBox msg={error} />}
         {success && <Successfull msg={`${success} ${timeLeft} `} />}
         <label htmlFor="username" className="block mb-1 text-teal-900">
           Username

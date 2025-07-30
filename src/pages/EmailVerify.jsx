@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../config.js";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 import { useUser } from "../contexts/UserContext";
 import Successfull from "../components/Successfull";
 
@@ -116,7 +116,7 @@ const EmailVerify = () => {
           Email Verification
         </h2>
 
-        {error && <Error msg={error} />}
+        {error && <ErrorBox msg={error} />}
         {message && <Successfull msg={message} />}
 
         {/* Email Change Input */}

@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { BASE_URL } from "../config";
-import Error from "../components/Error";
-import Successfull from "../components/Successfull";
 import { useNavigate } from "react-router-dom";
+import ErrorBox from "../components/ErrorBox";
+import Successfull from "../components/Successfull";
 
 const ApplyAsDriverFull = () => {
   const navigate = useNavigate();
 
-  // User registration fields
   const [form, setForm] = useState({
     name: "",
     username: "",
@@ -17,47 +16,42 @@ const ApplyAsDriverFull = () => {
     confirmPassword: "",
   });
 
-  // Driver application fields
   const [vehicleType, setVehicleType] = useState("");
-  const [documents, setDocuments] = useState([]);
   const [experience, setExperience] = useState("");
-
+  const [documents, setDocuments] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    setForm({ ...form, [e.target.id]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const handleFileChange = (e) => {
-    setDocuments([...e.target.files]);
+  const handleDocumentChange = (e) => {
+    setDocuments(Array.from(e.target.files));
   };
+
+  const isFormValid =
+    form.name &&
+    form.username &&
+    form.email &&
+    form.phone &&
+    form.password &&
+    form.password === form.confirmPassword &&
+    vehicleType &&
+    experience;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    // Validation
-    if (
-      !form.name ||
-      !form.username ||
-      !form.email ||
-      !form.phone ||
-      !form.password ||
-      !form.confirmPassword
-    ) {
-      setError("Please fill in all registration fields.");
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      setError("Password and Confirm Password do not match.");
-      return;
-    }
-    if (!vehicleType || documents.length === 0 || !experience) {
-      setError("Please fill in all driver application fields and upload documents.");
+    if (!isFormValid) {
+      setError("Please fill in all required fields correctly.");
       return;
     }
 
@@ -65,19 +59,12 @@ const ApplyAsDriverFull = () => {
 
     try {
       const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== "confirmPassword") formData.append(key, value);
+      });
 
-      // Append registration fields
-      formData.append("name", form.name);
-      formData.append("username", form.username);
-      formData.append("email", form.email);
-      formData.append("phone", form.phone);
-      formData.append("password", form.password);
-
-      // Append driver application fields
       formData.append("vehicle_type", vehicleType);
       formData.append("experience", experience);
-
-      // Append documents
       documents.forEach((doc) => {
         formData.append("documents[]", doc);
       });
@@ -88,11 +75,10 @@ const ApplyAsDriverFull = () => {
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Application failed");
 
       setSuccess("Application submitted successfully.");
-      setTimeout(() => navigate("/login"), 2000); // Redirect to login or dashboard
+      setTimeout(() => navigate("/email-verify"), 2000); // ✅ Redirect here
     } catch (err) {
       setError(err.message);
     } finally {
@@ -101,124 +87,28 @@ const ApplyAsDriverFull = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Register & Apply as a Driver</h2>
+    <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
+      <h2 className="text-2xl font-semibold mb-6 text-center">Apply As a Driver</h2>
 
-      {error && <Error message={error} />}
-      {success && <Successfull message={success} />}
+      {error && <ErrorBox msg={error} />}
+      {success && <Successfull msg={success} />}
 
-      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
-        {/* Registration Fields */}
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            id="name"
-            type="text"
-            value={form.name}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Full Name" className="w-full p-2 mb-3 border rounded" required />
+        <input type="text" name="username" value={form.username} onChange={handleChange} placeholder="Username" className="w-full p-2 mb-3 border rounded" required />
+        <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Email" className="w-full p-2 mb-3 border rounded" required />
+        <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="w-full p-2 mb-3 border rounded" required />
+        <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Password" className="w-full p-2 mb-3 border rounded" required />
+        <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} placeholder="Confirm Password" className="w-full p-2 mb-3 border rounded" required />
 
-        <div>
-          <label className="block font-medium">Username</label>
-          <input
-            id="username"
-            type="text"
-            value={form.username}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <input type="text" value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} placeholder="Vehicle Type (e.g., Truck, Pickup)" className="w-full p-2 mb-3 border rounded" required />
+        <input type="text" value={experience} onChange={(e) => setExperience(e.target.value)} placeholder="Driving Experience (e.g., 3 years)" className="w-full p-2 mb-3 border rounded" required />
 
-        <div>
-          <label className="block font-medium">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <label className="block mb-2 font-medium">Upload Documents:</label>
+        <input type="file" multiple onChange={handleDocumentChange} className="mb-4" />
 
-        <div>
-          <label className="block font-medium">Phone</label>
-          <input
-            id="phone"
-            type="text"
-            value={form.phone}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={form.password}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        {/* Driver Application Fields */}
-        <div>
-          <label className="block font-medium">Vehicle Type</label>
-          <select
-            value={vehicleType}
-            onChange={(e) => setVehicleType(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select Vehicle Type</option>
-            <option value="truck">Truck</option>
-            <option value="pickup">Pickup</option>
-            <option value="van">Van</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block font-medium">Driving Experience (years)</label>
-          <input
-            type="number"
-            min="0"
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="e.g., 2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Upload Vehicle Documents</label>
-          <input
-            type="file"
-            multiple
-            accept=".jpg,.jpeg,.png,.pdf"
-            onChange={(e) => setDocuments([...e.target.files])}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Register & Apply"}
+        <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+          {loading ? "Submitting..." : "Submit Application"}
         </button>
       </form>
     </div>

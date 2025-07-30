@@ -2,16 +2,19 @@
 require_once __DIR__ . "/../models/User.php";
 require_once __DIR__ . "/../models/VehicleDocument.php";
 require_once __DIR__ . "/../core/ResponseHelper.php";
+require_once __DIR__ . '/../core/Mailer.php';
 
 class DriverApplicationController
 {
   private $userModel;
   private $vehicleDocumentModel;
+  private $pdo;
 
   public function __construct()
   {
     $this->userModel = new User();
     $this->vehicleDocumentModel = new VehicleDocument();
+    $this->pdo = User::connectDatabase();
   }
 
   public function applyDriver()

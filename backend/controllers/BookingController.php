@@ -33,6 +33,7 @@ class BookingController {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
+
         if ($this->bookingModel->create($data)) {
             ResponseHelper::success("Booking created");
         } else {

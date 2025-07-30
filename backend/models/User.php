@@ -13,6 +13,10 @@ class User
     $this->pdo = connectDB();
   }
 
+  public static function connectDatabase() {
+    return connectDB();
+  }
+
   public function findByEmailOrPhone(string $email, string $phone)
   {
     $sql = "SELECT * FROM {$this->table} WHERE email = :email OR phone = :phone LIMIT 1";

@@ -46,6 +46,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./admin/admin";
 import BookNow from "./pages/BookNow";
 import ApplyAsDriver from "./pages/ApplyAsDriver";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/email-verify" element={<EmailVerify />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />

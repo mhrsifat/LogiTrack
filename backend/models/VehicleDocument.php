@@ -20,36 +20,51 @@ class VehicleDocument
     }
 
     $errors = [];
-    foreach ($files['name'] as $index => $name) {
+    $successCount = 0;
+
+    foreach ($files['name'] as $index => $originalName) {
       $tmpName = $files['tmp_name'][$index];
       $error = $files['error'][$index];
 
       if ($error !== UPLOAD_ERR_OK) {
-        $errors[] = "Failed to upload $name";
+        $errors[] = "Failed to upload file: $originalName";
         continue;
       }
 
-      $extension = pathinfo($name, PATHINFO_EXTENSION);
+      $extension = pathinfo($originalName, PATHINFO_EXTENSION);
       $uniqueName = uniqid("doc_", true) . "." . $extension;
       $destination = $uploadDir . $uniqueName;
 
       if (move_uploaded_file($tmpName, $destination)) {
-        $stmt = $this->pdo->prepare("INSERT INTO {$this->table} (driver_id, document_path, vehicle_type, created_at) VALUES (:driver_id, :document_path, :vehicle_type, NOW())");
-        $stmt->execute([
+        $stmt = $this->pdo->prepare("
+        INSERT INTO {$this->table} 
+        (driver_id, vehicle_type, document_path, file_name, original_name, created_at, uploaded_at) 
+        VALUES 
+        (:driver_id, :vehicle_type, :document_path, :file_name, :original_name, NOW(), NOW())
+      ");
+
+        $success = $stmt->execute([
           'driver_id' => $driverId,
+          'vehicle_type' => $vehicleType,
           'document_path' => 'uploads/vehicle_docs/' . $uniqueName,
-          'vehicle_type' => $vehicleType
+          'file_name' => $uniqueName,
+          'original_name' => $originalName
         ]);
+
+        if ($success) {
+          $successCount++;
+        } else {
+          $errors[] = "DB insert failed for $originalName";
+        }
       } else {
-        $errors[] = "Failed to save $name";
+        $errors[] = "Failed to move uploaded file: $originalName";
       }
     }
 
-    if (count($errors)) {
-      return ['status' => false, 'errors' => $errors];
-    }
-
-    return ['status' => true];
+    return [
+      "status" => $successCount > 0,
+      "errors" => $errors
+    ];
   }
 
 

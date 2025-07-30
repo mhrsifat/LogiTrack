@@ -25,16 +25,17 @@ class Booking
 
   public function create($data)
   {
+    $userid = $_SESSION['userId'];
     $stmt = $this->pdo->prepare(
-      "INSERT INTO bookings (user_id, vehicle_id, pickup_location, dropoff_location, status, date) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO bookings (user_id, vehicle_id, pickup_address, drop_address, status, scheduled_time) VALUES (?, ?, ?, ?, ?, ?)"
     );
     return $stmt->execute([
-      $data["user_id"],
+      $userid,
       $data["vehicle_id"],
-      $data["pickup_location"],
-      $data["dropoff_location"],
+      $data["pickup_address"],
+      $data["drop_address"],
       $data["status"],
-      $data["date"],
+      $data["scheduled_time"],
     ]);
   }
 

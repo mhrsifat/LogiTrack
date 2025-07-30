@@ -1,55 +1,71 @@
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
-import { useUser } from "../contexts/UserContext";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 import Successfull from "../components/Successfull";
 
 const GigList = () => {
-  const { user } = useUser();
   const [gigs, setGigs] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const fetchGigs = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/gigs`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      console.log("Fetched data:", data);
-
-      if (!res.ok) throw new Error(data.message || "Failed to load gigs");
-
-      // ✅ Handle array or object response
-      if (Array.isArray(data)) {
-        setGigs(data);
-      } else if (Array.isArray(data.gigs)) {
-        setGigs(data.gigs);
-      } else {
-        throw new Error("Invalid data format: gigs not found");
-      }
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  const [selectedGig, setSelectedGig] = useState(null);
+  const [form, setForm] = useState({
+    pickup_address: "",
+    drop_address: "",
+    scheduled_time: "",
+    distance_km: "",
+    price: "",
+  });
 
   useEffect(() => {
+    const fetchGigs = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/gigs`, { credentials: "include" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to load gigs");
+        if (Array.isArray(data.data)) {
+          setGigs(data.data);
+        } else {
+          throw new Error("Invalid data format: gigs not found");
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
     fetchGigs();
   }, []);
 
-  const handleBooking = async (gigId) => {
-    setError("");
-    setSuccess("");
+  const handleOpenModal = (gig) => {
+    setSelectedGig(gig);
+    setForm({
+      pickup_address: gig.pickup_location,
+      drop_address: gig.dropoff_location,
+      scheduled_time: new Date(gig.available_from).toISOString().slice(0, 16), // format for datetime-local
+      distance_km: "",
+      price: gig.price,
+    });
+  };
+
+  const handleBooking = async () => {
     try {
       const res = await fetch(`${BASE_URL}/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ user_id: user?.id, gig_id: gigId }),
+        body: JSON.stringify({
+          vehicle_id: selectedGig.vehicle_id,
+          pickup_address: form.pickup_address,
+          drop_address: form.drop_address,
+          status: "pending",
+          scheduled_time: form.scheduled_time,
+        }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Booking failed");
-      setSuccess("Successfully booked the gig.");
+
+      setSuccess("Booking successful!");
+      setSelectedGig(null);
     } catch (err) {
       setError(err.message);
     }
@@ -59,11 +75,11 @@ const GigList = () => {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4">Available Gigs</h2>
 
-      {error && <Error message={error} />}
-      {success && <Successfull message={success} />}
+      {error && <ErrorBox msg={error} />}
+      {success && <Successfull msg={success} />}
 
       <div className="space-y-4">
-        {Array.isArray(gigs) && gigs.length > 0 ? (
+        {gigs.length > 0 ? (
           gigs.map((gig) => (
             <div
               key={gig.id}
@@ -77,7 +93,7 @@ const GigList = () => {
                 <p>Date: {new Date(gig.available_from).toLocaleString()}</p>
               </div>
               <button
-                onClick={() => handleBooking(gig.id)}
+                onClick={() => handleOpenModal(gig)}
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
                 Book
@@ -88,6 +104,66 @@ const GigList = () => {
           <p className="text-gray-500">No gigs found.</p>
         )}
       </div>
+
+      {/* MODAL */}
+      {selectedGig && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold mb-4">Confirm Booking</h3>
+
+            <label className="block mb-2">
+              Pickup Address
+              <input
+                type="text"
+                className="w-full border p-2 rounded"
+                value={form.pickup_address}
+                onChange={(e) =>
+                  setForm({ ...form, pickup_address: e.target.value })
+                }
+              />
+            </label>
+
+            <label className="block mb-2">
+              Drop Address
+              <input
+                type="text"
+                className="w-full border p-2 rounded"
+                value={form.drop_address}
+                onChange={(e) =>
+                  setForm({ ...form, drop_address: e.target.value })
+                }
+              />
+            </label>
+
+            <label className="block mb-2">
+              Schedule Time
+              <input
+                type="datetime-local"
+                className="w-full border p-2 rounded"
+                value={form.scheduled_time}
+                onChange={(e) =>
+                  setForm({ ...form, scheduled_time: e.target.value })
+                }
+              />
+            </label>
+
+            <div className="flex justify-end space-x-4 mt-4">
+              <button
+                onClick={() => setSelectedGig(null)}
+                className="px-4 py-2 rounded border border-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBooking}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

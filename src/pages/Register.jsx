@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 // eslint-disable-next-line no-unused-vars
-import { motion } from "motion/react";
+import { motion, scale } from "motion/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -8,7 +8,7 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 import Successfull from "../components/Successfull";
 import { BASE_URL } from "../config.js";
 
@@ -75,7 +75,8 @@ const Register = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data.status) setSuccess("Registration Successful. Please verify your email.");
+      if (data.status)
+        setSuccess("Registration Successful. Please verify your email.");
       else if (data.errors) setError(Object.values(data.errors).join(", "));
       else if (data.message) setError(data.message);
     } catch (err) {
@@ -148,11 +149,13 @@ const Register = () => {
         <h2 className="text-2xl font-semibold mb-4 text-center text-teal-700">
           Register Form
         </h2>
-        {error && <Error msg={error} />}
+        {error && <ErrorBox msg={error} />}
         {success && <Successfull msg={`${success} ${timeLeft}`} />}
 
         {/* Name */}
-        <label htmlFor="name" className="block mb-1 text-teal-900">Name</label>
+        <label htmlFor="name" className="block mb-1 text-teal-900">
+          Name
+        </label>
         <input
           type="text"
           id="name"
@@ -162,33 +165,57 @@ const Register = () => {
         />
 
         {/* Username */}
-        <label htmlFor="username" className="block mb-1 text-teal-900">Username</label>
+        <label htmlFor="username" className="block mb-1 text-teal-900">
+          Username
+        </label>
         <input
           type="text"
           id="username"
           value={form.username}
-          onChange={(e) => { handleInputChange(e); userExist(e.target.value); }}
+          onChange={(e) => {
+            handleInputChange(e);
+            userExist(e.target.value);
+          }}
           className="w-full mb-4 px-3 py-2 border border-teal-900 rounded"
         />
         {userExistMsg && (
-          <p className={`text-sm mb-4 ${userStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>{userExistMsg}</p>
+          <p
+            className={`text-sm mb-4 ${
+              userStatus === "success" ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {userExistMsg}
+          </p>
         )}
 
         {/* Email */}
-        <label htmlFor="email" className="block mb-1 text-teal-900">Email</label>
+        <label htmlFor="email" className="block mb-1 text-teal-900">
+          Email
+        </label>
         <input
           type="email"
           id="email"
           value={form.email}
-          onChange={(e) => { handleInputChange(e); emailcheck(e.target.value); }}
+          onChange={(e) => {
+            handleInputChange(e);
+            emailcheck(e.target.value);
+          }}
           className="w-full mb-4 px-3 py-2 border border-teal-900 rounded"
         />
         {emailExistMsg && (
-          <p className={`text-sm mb-4 ${emailStatus === 'success' ? 'text-green-600' : 'text-red-600'}`}>{emailExistMsg}</p>
+          <p
+            className={`text-sm mb-4 ${
+              emailStatus === "success" ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {emailExistMsg}
+          </p>
         )}
 
         {/* Phone */}
-        <label htmlFor="phone" className="block mb-1 text-teal-900">Phone</label>
+        <label htmlFor="phone" className="block mb-1 text-teal-900">
+          Phone
+        </label>
         <input
           type="text"
           id="phone"
@@ -198,10 +225,12 @@ const Register = () => {
         />
 
         {/* Password */}
-        <label htmlFor="password" className="block mb-1 text-teal-900">Password</label>
+        <label htmlFor="password" className="block mb-1 text-teal-900">
+          Password
+        </label>
         <div className="relative mb-4">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             id="password"
             value={form.password}
             onChange={handleInputChange}
@@ -215,10 +244,12 @@ const Register = () => {
         </div>
 
         {/* Confirm Password */}
-        <label htmlFor="confirmPassword" className="block mb-1 text-teal-900">Confirm Password</label>
+        <label htmlFor="confirmPassword" className="block mb-1 text-teal-900">
+          Confirm Password
+        </label>
         <div className="relative mb-6">
           <input
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
             value={form.confirmPassword}
             onChange={handleInputChange}
@@ -236,30 +267,48 @@ const Register = () => {
           disabled={loading}
           whileHover={!loading ? { scale: 1.05 } : {}}
           whileTap={!loading ? { scale: 0.95 } : {}}
-          className={`w-full flex justify-center items-center py-2 rounded ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 text-white'}`}
+          className={`w-full flex justify-center items-center py-2 rounded ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-teal-600 hover:bg-teal-700 text-white"
+          }`}
         >
           {loading ? (
             <motion.span
               animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
               className="flex items-center"
             >
               <FontAwesomeIcon icon={faSpinner} spin />
             </motion.span>
           ) : (
-            'Register'
+            "Register"
           )}
         </motion.button>
 
         <p className="mt-4 text-center text-sm">
-          Already have an account?{' '}
-          <Link to="/Login" className="text-blue-600 hover:underline">Login Now</Link>
+          Already have an account?{" "}
+          <Link to="/Login" className="text-blue-600 hover:underline">
+            Login Now
+          </Link>
         </p>
+        <motion.div
+          className="my-4"
+          whileHover={{
+            color: "#fff",
+            backgroundColor: "#e63946",
+            transition: { duration: 0.3 },
+          }}
+          whileInView={{ scale: 1.05 }}
+        >
+          <Link
+            to="/applyasdriver"
+            className="flex justify-center p-4 bg-blue-200 text-red-600 font-semibold rounded-md"
+          >
+            Apply As a Driver
+          </Link>
+        </motion.div>
       </motion.form>
-      <motion.div className="">
-        <Link to="/applyasdriver" className="flex justify-center bg-blue-200 text-red-600">Apply As a Driver</Link>
-
-      </motion.div>
     </div>
   );
 };
