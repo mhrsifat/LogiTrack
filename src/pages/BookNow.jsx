@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BASE_URL } from "../config";
 import ErrorBox from "../components/ErrorBox";
 import Successfull from "../components/Successfull";
@@ -7,6 +7,34 @@ const GigList = () => {
   const [gigs, setGigs] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
+  const modalRef = useRef();
+  
+  useEffect(() => {
+  function handleOutsideClick(event) {
+    if (
+      selectedGig &&
+      modalRef.current &&
+      !modalRef.current.contains(event.target)
+    ) {
+      setSelectedGig(null);
+    }
+  }
+
+  function handleEscapeKey(event) {
+    if (event.key === "Escape") {
+      setSelectedGig(null);
+    }
+  }
+
+  document.addEventListener("mousedown", handleOutsideClick);
+  document.addEventListener("keydown", handleEscapeKey);
+
+  return () => {
+    document.removeEventListener("mousedown", handleOutsideClick);
+    document.removeEventListener("keydown", handleEscapeKey);
+  };
+}, [selectedGig]);
 
   const [selectedGig, setSelectedGig] = useState(null);
   const [form, setForm] = useState({
@@ -107,7 +135,7 @@ const GigList = () => {
 
       {/* MODAL */}
       {selectedGig && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div ref={modalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Confirm Booking</h3>
 
