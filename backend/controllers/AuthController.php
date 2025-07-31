@@ -38,7 +38,10 @@ class AuthController
     if ($user["status"] == "unverified") {
       $_SESSION["loggedIn"] = false;
       $_SESSION["userId"] = $user["id"];
-      return ResponseHelper::error("Please verify your email before logging in", 403);
+      return ResponseHelper::error(
+        "Please verify your email before logging in",
+        403
+      );
     }
 
     $_SESSION["loggedIn"] = true;
@@ -48,7 +51,15 @@ class AuthController
     if ($remember) {
       $rememberToken = bin2hex(random_bytes(32));
 
-      setcookie("remember_token", $rememberToken, time() + (86400 * 30), "/", "", false, true);
+      setcookie(
+        "remember_token",
+        $rememberToken,
+        time() + 86400 * 30,
+        "/",
+        "",
+        false,
+        true
+      );
       $userAgent = $_SERVER["HTTP_USER_AGENT"] ?? "unknown";
       $ipAddress = $_SERVER["REMOTE_ADDR"] ?? "0.0.0.0";
 
@@ -60,15 +71,18 @@ class AuthController
       );
     }
 
-    return ResponseHelper::success([
-      "user_id"  => $user["id"],
-      "name"     => $user["name"],
-      "username" => $user["username"],
-      "email"    => $user["email"],
-      "role"     => $user["role"],
-    ], "Login successful", 200);
+    return ResponseHelper::success(
+      [
+        "user_id" => $user["id"],
+        "name" => $user["name"],
+        "username" => $user["username"],
+        "email" => $user["email"],
+        "role" => $user["role"],
+      ],
+      "Login successful",
+      200
+    );
   }
-
 
   public function register()
   {
@@ -114,7 +128,8 @@ class AuthController
       ResponseHelper::error("Registration failed", 500);
     }
 
-    $verifyUrl = $_ENV["Frontend_URL"] . "/verify-email?token=" . $user["token"];
+    $verifyUrl =
+      $_ENV["Frontend_URL"] . "/verify-email?token=" . $user["token"];
     $subject = "Verify your email address";
     $message = "Hi $name,\n\nPlease verify your email by clicking this link: $verifyUrl\n\nThank you.";
 
@@ -163,8 +178,8 @@ class AuthController
 
   public function verifyEmailToken()
   {
-    $data  = json_decode(file_get_contents("php://input"), true);
-    $token = trim($data['token'] ?? '');
+    $data = json_decode(file_get_contents("php://input"), true);
+    $token = trim($data["token"] ?? "");
 
     if (!$token) {
       return ResponseHelper::error("Token is required", 400);
@@ -176,11 +191,11 @@ class AuthController
       return ResponseHelper::error("Invalid or expired token", 404);
     }
 
-    if ($user['status'] !== 'unverified') {
+    if ($user["status"] !== "unverified") {
       return ResponseHelper::success([], "Email already verified");
     }
 
-    if ($this->userModel->updateUserVerify($user['id'])) {
+    if ($this->userModel->updateUserVerify($user["id"])) {
       $_SESSION["loggedIn"] = true;
       $_SESSION["userId"] = $user["id"];
       $_SESSION["role"] = $user["role"];
@@ -217,15 +232,22 @@ class AuthController
 
   public function autologin()
   {
-    if (isset($_SESSION["loggedIn"]) && isset($_SESSION["userId"]) && $_SESSION["loggedIn"] === true) {
+    if (
+      isset($_SESSION["loggedIn"]) &&
+      isset($_SESSION["userId"]) &&
+      $_SESSION["loggedIn"] === true
+    ) {
       $user = $this->userModel->findById($_SESSION["userId"]);
-      ResponseHelper::success([
-      "user_id"  => $user["id"],
-      "name"     => $user["name"],
-      "username" => $user["username"],
-      "email"    => $user["email"],
-      "role"     => $user["role"],
-    ], "Auto-login success");
+      ResponseHelper::success(
+        [
+          "user_id" => $user["id"],
+          "name" => $user["name"],
+          "username" => $user["username"],
+          "email" => $user["email"],
+          "role" => $user["role"],
+        ],
+        "Auto-login success"
+      );
     }
 
     if (!empty($_COOKIE["remember_token"])) {
@@ -238,14 +260,16 @@ class AuthController
         $_SESSION["loggedIn"] = true;
         $_SESSION["userId"] = $user["id"];
         $_SESSION["role"] = $user["role"];
-        ResponseHelper::success([
-      "user_id"  => $user["id"],
-      "name"     => $user["name"],
-      "username" => $user["username"],
-      "email"    => $user["email"],
-      "role"     => $user["role"],
-    ],"Auto-login from token");
-        return;
+        ResponseHelper::success(
+          [
+            "user_id" => $user["id"],
+            "name" => $user["name"],
+            "username" => $user["username"],
+            "email" => $user["email"],
+            "role" => $user["role"],
+          ],
+          "Auto-login from token"
+        );
       } else {
         self::logout();
       }
@@ -254,7 +278,6 @@ class AuthController
     session_destroy();
     ResponseHelper::error("Not logged in", 200);
   }
-
 
   public function updateemail()
   {
