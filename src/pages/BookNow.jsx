@@ -8,9 +8,11 @@ const GigList = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   
-  const modalRef = useRef();
+  const [selectedGig, setSelectedGig] = useState(null);
   
-  useEffect(() => {
+  const modalRef = useRef();
+
+useEffect(() => {
   function handleOutsideClick(event) {
     if (
       selectedGig &&
@@ -36,7 +38,6 @@ const GigList = () => {
   };
 }, [selectedGig]);
 
-  const [selectedGig, setSelectedGig] = useState(null);
   const [form, setForm] = useState({
     pickup_address: "",
     drop_address: "",
@@ -135,10 +136,9 @@ const GigList = () => {
 
       {/* MODAL */}
       {selectedGig && (
-        <div ref={modalRef} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div ref={modalRef} className="fixed inset-0 bg-transparent backdrop-blur-md flex justify-center items-center z-50 border-black border-2">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Confirm Booking</h3>
-
             <label className="block mb-2">
               Pickup Address
               <input

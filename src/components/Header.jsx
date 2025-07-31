@@ -8,26 +8,28 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="bg-teal-600 text-white px-4 py-3">
-      <div className="flex items-center justify-between">
-        <Link to='/' className="text-2xl font-bold">LogiTrack</Link>
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur bg-white/30 text-black px-4 py-3 border-b border-blue-400">
+  <div className="flex items-center justify-between">
+    <Link to="/" className="text-2xl font-bold">
+      LogiTrack
+    </Link>
 
-        <button
-          className="sm:hidden text-xl"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <FontAwesomeIcon icon={isOpen ? faTimes : faBars} />
-        </button>
+    <button className="sm:hidden text-xl" onClick={() => setIsOpen(!isOpen)}>
+      <FontAwesomeIcon icon={isOpen ? faTimes : faBars} />
+    </button>
 
-        <nav className="hidden sm:block">
-          <Navbar />
-        </nav>
-      </div>
+    <nav className="hidden sm:block">
+      <Navbar />
+    </nav>
+  </div>
 
-      <div className={`${isOpen ? "block" : "hidden"} sm:hidden mt-3`}>
-        <Navbar />
-      </div>
-    </header>
+  {isOpen && (
+    <div className="sm:hidden mt-3">
+      <Navbar />
+    </div>
+  )}
+</header>
+
   );
 };
 
