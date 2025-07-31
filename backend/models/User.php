@@ -125,8 +125,8 @@ class User
 
   public function findByToken($token, $userAgent, $ipAddress)
   {
-    if ($userAgent == "unknown" || $ipAddress == "0.0.0.0") {
-      return;
+    if ($userAgent === "unknown" || $ipAddress === "0.0.0.0") {
+      return false;
     }
     $stmt = $this->pdo->prepare("
         SELECT u.* FROM users u
