@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 import { CheckCheck, Bell, Clock } from "lucide-react";
 
 const Notifications = () => {
@@ -49,7 +49,7 @@ const Notifications = () => {
   };
 
   if (loading) return <p className="text-center">Loading...</p>;
-  if (error) return <Error message={error} />;
+  if (error) return <ErrorBox msg={error} />;
 
   return (
     <div className="max-w-2xl mx-auto p-4">
