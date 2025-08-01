@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 
 const Support = () => {
   // State for ticket list & loading
@@ -129,7 +129,7 @@ const Support = () => {
   };
 
   if (loading) return <p className="text-center">Loading tickets...</p>;
-  if (error) return <Error message={error} />;
+  if (error) return <ErrorBox msg={error} />;
 
   return (
     <div className="max-w-3xl mx-auto p-4 mt-6">
