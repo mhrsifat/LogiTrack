@@ -16,11 +16,9 @@ class SupportTicket
   public function getAll($userId, $role)
   {
     if ($role === 'admin') {
-      // Admin sees all tickets
       $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} ORDER BY created_at DESC");
       $stmt->execute();
     } else {
-      // Users see only their tickets
       $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE user_id = :user_id ORDER BY created_at DESC");
       $stmt->execute([':user_id' => $userId]);
     }
@@ -33,7 +31,6 @@ class SupportTicket
       $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = :id");
       $stmt->execute([':id' => $id]);
     } else {
-      // User can only see own ticket
       $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = :id AND user_id = :user_id");
       $stmt->execute([':id' => $id, ':user_id' => $userId]);
     }
@@ -43,43 +40,46 @@ class SupportTicket
   public function create($data)
   {
     $stmt = $this->pdo->prepare("
-      INSERT INTO {$this->table} (user_id, subject, message, status, created_at, updated_at)
-      VALUES (:user_id, :subject, :message, 'open', NOW(), NOW())
+      INSERT INTO {$this->table} (user_id, subject, description, status, priority, assigned_to, created_at, updated_at)
+      VALUES (:user_id, :subject, :description, 'open', :priority, :assigned_to, NOW(), NOW())
     ");
     return $stmt->execute([
-      ':user_id' => $data['user_id'],
-      ':subject' => $data['subject'],
-      ':message' => $data['message']
+      ':user_id'     => $data['user_id'],
+      ':subject'     => $data['subject'],
+      ':description' => $data['description'],
+      ':priority'    => $data['priority'] ?? 'medium',
+      ':assigned_to' => $data['assigned_to'] ?? null,
     ]);
   }
 
   public function update($id, $userId, $role, $data)
   {
-    // Allow admins to update any ticket, users only their own
     if ($role === 'admin') {
       $stmt = $this->pdo->prepare("
         UPDATE {$this->table}
-        SET subject = :subject, message = :message, status = :status, updated_at = NOW()
+        SET subject = :subject, description = :description, status = :status, priority = :priority, assigned_to = :assigned_to, updated_at = NOW()
         WHERE id = :id
       ");
       return $stmt->execute([
-        ':subject' => $data['subject'],
-        ':message' => $data['message'],
-        ':status' => $data['status'],
-        ':id' => $id
+        ':subject'     => $data['subject'],
+        ':description' => $data['description'],
+        ':status'      => $data['status'],
+        ':priority'    => $data['priority'],
+        ':assigned_to' => $data['assigned_to'],
+        ':id'          => $id
       ]);
     } else {
       $stmt = $this->pdo->prepare("
         UPDATE {$this->table}
-        SET subject = :subject, message = :message, status = :status, updated_at = NOW()
+        SET subject = :subject, description = :description, status = :status, updated_at = NOW()
         WHERE id = :id AND user_id = :user_id
       ");
       return $stmt->execute([
-        ':subject' => $data['subject'],
-        ':message' => $data['message'],
-        ':status' => $data['status'],
-        ':id' => $id,
-        ':user_id' => $userId
+        ':subject'     => $data['subject'],
+        ':description' => $data['description'],
+        ':status'      => $data['status'],
+        ':id'          => $id,
+        ':user_id'     => $userId
       ]);
     }
   }

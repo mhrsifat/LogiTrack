@@ -31,6 +31,7 @@ import BookingDetails from "./pages/BookingDetails";
 import BookingHistory from "./pages/BookingHistory";
 import Dashboard from "./pages/Dashboard";
 import Support from "./pages/Support";
+import Notifications from "./pages/Notifications";
 
 // Admin Pages
 import VehicleManagement from "./pages/VehicleManagement";
@@ -45,6 +46,7 @@ import BookNow from "./pages/BookNow";
 import ApplyAsDriver from "./pages/ApplyAsDriver";
 import VerifyEmail from "./pages/VerifyEmail";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 // ✅ Create wrapper to use hooks
 const AppWrapper = () => {
@@ -76,6 +78,7 @@ const AppWrapper = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/support" element={<Support />} />
           <Route path="/applyasdriver" element={<ApplyAsDriver />} />
+          <Route path="/notifications" element={<Notifications />} />
 
           {/* Admin Routes */}
           <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
@@ -99,6 +102,7 @@ const AppWrapper = () => {
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <AppWrapper />
     </Router>
   );

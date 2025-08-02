@@ -39,20 +39,26 @@ class Booking
     ]);
   }
 
-  public function update($id, $data)
-  {
-    $stmt = $this->pdo->prepare(
-      "UPDATE bookings SET vehicle_id = ?, pickup_location = ?, dropoff_location = ?, status = ?, date = ? WHERE id = ?"
-    );
-    return $stmt->execute([
-      $data["vehicle_id"],
-      $data["pickup_location"],
-      $data["dropoff_location"],
-      $data["status"],
-      $data["date"],
-      $id,
-    ]);
-  }
+ public function update($id, $data)
+{
+  $stmt = $this->pdo->prepare(
+    "UPDATE bookings SET 
+      pickup_address = ?, 
+      drop_address = ?, 
+      scheduled_time = ?, 
+      status = ? 
+    WHERE id = ?"
+  );
+
+  return $stmt->execute([
+    $data["pickup_address"] ?? '',
+    $data["drop_address"] ?? '',
+    $data["scheduled_time"] ?? '',
+    $data["status"] ?? 'pending', 
+    $id,
+  ]);
+}
+
 
   public function delete($id)
   {

@@ -1,87 +1,145 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../config";
-import ErrorBox from "../components/ErrorBox";
-import Successfull from "../components/Successfull";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { getBooking, deleteBooking, updateBooking } from "../api/BookingAPI";
+import { UserContext } from "../contexts/UserContext";
 
 const BookingDetails = () => {
-    const { id } = useParams(); // URL থেকে id পাওয়া যায়
-    const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [booking, setBooking] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
+  const bookingId = searchParams.get("id");
 
-    const [booking, setBooking] = useState(null); // বুকিং ডেটা রাখার জন্য
-    const [loading, setLoading] = useState(true); // লোডিং কন্ডিশন
-    const [error, setError] = useState(""); // এরর মেসেজ
+  useEffect(() => {
+    if (!bookingId) return;
 
-    useEffect(() => {
-        const fetchBookingDetails = async () => {
-            try {
-                const res = await fetch(`${BASE_URL}/bookings/${id}`, {
-                    credentials: "include"
-                });
-                const data = await res.json();
+    getBooking(bookingId).then((res) => {
+      if (res.status) {
+        setBooking(res.data);
+        setFormData(res.data); // Pre-fill form with booking data
+      } else {
+        alert(res.message || "Failed to load booking.");
+      }
+    });
+  }, [bookingId]);
 
-                if (data.status) {
-                    setBooking(data.data); // API থেকে ডেটা পাওয়া গেছে
-                } else {
-                    setError(data.message || "Booking not found");
-                }
-            } catch (err) {
-                setError(
-                    "Something went wrong while fetching booking details."
-                );
-            } finally {
-                setLoading(false); // যাই হোক লোডিং false হবে
-            }
-        };
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this booking?")) return;
 
-        fetchBookingDetails();
-    }, [id]);
+    const res = await deleteBooking(bookingId);
+    if (res.status) {
+      alert("Booking deleted.");
+      navigate("/my-bookings");
+    } else {
+      alert(res.message || "Failed to delete booking.");
+    }
+  };
 
-    if (loading) return <p className="text-center">Loading...</p>;
-    if (error) return <ErrorBox msg={error} />;
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
 
-    return (
-        <div className="max-w-3xl mx-auto p-4 bg-white shadow-md rounded-lg mt-6">
-            <h2 className="text-2xl font-bold mb-4 text-blue-600">
-                Booking Details
-            </h2>
+    const res = await updateBooking(bookingId, formData);
+    if (res.status) {
+      setBooking(res.data);
+      setEditing(false);
+      alert("Booking updated successfully.");
+      getBooking(bookingId).then((res) => {
+        if (res.status) {
+          setBooking(res.data);
+          setFormData(res.data);
+        } else{
+            //do nothing, already handled in useEffect
+        }
+      });
+    } else {
+      alert(res.message || "Failed to update booking.");
+    }
+  };
 
-            <div className="space-y-3">
-                <p>
-                    <strong>Booking ID:</strong> {booking.id}
-                </p>
-                <p>
-                    <strong>Status:</strong> {booking.status}
-                </p>
-                <p>
-                    <strong>Pickup Location:</strong> {booking.pickup_location}
-                </p>
-                <p>
-                    <strong>Drop Location:</strong> {booking.drop_location}
-                </p>
-                <p>
-                    <strong>Vehicle Type:</strong> {booking.vehicle_type}
-                </p>
-                <p>
-                    <strong>Schedule Date:</strong> {booking.schedule_date}
-                </p>
-                <p>
-                    <strong>Price:</strong> ৳{booking.price}
-                </p>
-                <p>
-                    <strong>Created At:</strong>{" "}
-                    {new Date(booking.created_at).toLocaleString()}
-                </p>
-            </div>
+  if (!booking) return <div className="p-4">Loading booking details...</div>;
 
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      <h2 className="text-2xl font-semibold mb-4">Booking Details</h2>
+
+      {editing ? (
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium">Pickup Address:</label>
+            <input
+              type="text"
+              value={formData.pickup_address || ""}
+              onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Drop Address:</label>
+            <input
+              type="text"
+              value={formData.drop_address || ""}
+              onChange={(e) => setFormData({ ...formData, drop_address: e.target.value })}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div>
+            <label className="block font-medium">Scheduled Time:</label>
+            <input
+              type="datetime-local"
+              value={formData.scheduled_time?.slice(0, 16) || ""}
+              onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+              className="w-full border rounded px-3 py-2"
+              required
+            />
+          </div>
+
+          <div className="flex gap-3">
             <button
-                onClick={() => navigate("/my-bookings")}
-                className="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             >
-                Back to My Bookings
+              Save
             </button>
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-2 text-gray-800">
+          <p><strong>From:</strong> {booking.pickup_address}</p>
+          <p><strong>To:</strong> {booking.drop_address}</p>
+          <p><strong>Date:</strong> {new Date(booking.scheduled_time).toLocaleString("en-BD")}</p>
+          <p><strong>Distance:</strong> {booking.distance_km} km</p>
+          <p><strong>Price:</strong> ৳{booking.price}</p>
+          <p><strong>Status:</strong> {booking.status}</p>
+          <p className="text-sm text-gray-500"><strong>Created:</strong> {new Date(booking.created_at).toLocaleString("en-BD")}</p>
+
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => setEditing(true)}
+              className="text-blue-600 hover:underline"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="text-red-600 hover:underline"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default BookingDetails;

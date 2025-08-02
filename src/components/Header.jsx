@@ -8,10 +8,10 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur bg-white/30 text-black px-4 py-3 border-b border-blue-400">
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur bg-white/30 text-black px-10 py-3 border-b border-blue-400">
   <div className="flex items-center justify-between">
     <Link to="/" className="text-2xl font-bold">
-      LogiTrack
+      <img src="/logitrack.png" alt="LogiTrack" className="h-10" />
     </Link>
 
     <button className="sm:hidden text-xl" onClick={() => setIsOpen(!isOpen)}>

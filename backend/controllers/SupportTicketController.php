@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../models/SupportTicket.php";
-require_once __DIR__ . "/../helpers/ResponseHelper.php";
+require_once __DIR__ . "/../core/ResponseHelper.php";
 require_once __DIR__ . "/../core/AccessControl.php";
 
 class SupportTicketController
@@ -20,7 +20,7 @@ class SupportTicketController
       return ResponseHelper::unauthorized("Login required.");
     }
 
-    $userId = $_SESSION["user_id"];
+    $userId = $_SESSION["userId"];
     $role = $_SESSION["role"];
 
     $tickets = $this->ticketModel->getAll($userId, $role);
@@ -34,7 +34,7 @@ class SupportTicketController
       return ResponseHelper::unauthorized("Login required.");
     }
 
-    $userId = $_SESSION["user_id"];
+    $userId = $_SESSION["userId"];
     $role = $_SESSION["role"];
 
     $ticket = $this->ticketModel->getById($id, $userId, $role);
@@ -60,7 +60,7 @@ class SupportTicketController
     }
 
     $data = [
-      "user_id" => $_SESSION["user_id"],
+      "user_id" => $_SESSION["userId"],
       "subject" => trim($input["subject"]),
       "message" => trim($input["message"]),
     ];

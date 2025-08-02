@@ -26,14 +26,16 @@ class AccessControl
         return self::isLoggedIn() && $_SESSION['role'] === 'operator';
     }
 
-    public static function requireRole(array $roles)
-    {
-        if (!self::isLoggedIn() || !in_array($_SESSION['role'], $roles)) {
-            http_response_code(403); // Forbidden
-            echo json_encode(['error' => 'Unauthorized access']);
-            exit;
-        }
+ public static function requireRole(array $roles): bool
+{
+    if (!self::isLoggedIn() || !in_array($_SESSION['role'], $roles)) {
+        http_response_code(403); // Forbidden
+        echo json_encode(['error' => 'Unauthorized access']);
+        exit;  // Immediately stop script execution
     }
+    return true; // User has required role
+}
+
 
     public static function requireLogin()
     {

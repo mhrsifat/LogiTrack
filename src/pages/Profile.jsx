@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useUser } from "../contexts/UserContext";
 import { BASE_URL } from "../config";
 import Successfull from "../components/Successfull";
-import Error from "../components/Error";
+import ErrorBox from "../components/ErrorBox";
 
 const Profile = () => {
   const { user, setUser } = useUser();
@@ -55,6 +55,7 @@ const Profile = () => {
       } else {
         setError(result.message || "Failed to update profile.");
       }
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       setError("Server error. Try again.");
     }
@@ -64,8 +65,8 @@ const Profile = () => {
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-lg">
       <h2 className="text-2xl font-semibold mb-4 text-center">My Profile</h2>
 
-      {success && <Successfull message={success} />}
-      {error && <Error message={error} />}
+      {success && <Successfull msg={success} />}
+      {error && <ErrorBox msg={error} />}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
