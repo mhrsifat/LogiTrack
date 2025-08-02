@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { getBooking, deleteBooking, updateBooking } from "../api/BookingAPI";
-import { UserContext } from "../contexts/UserContext";
 
 const BookingDetails = () => {
   const [searchParams] = useSearchParams();
@@ -13,20 +12,22 @@ const BookingDetails = () => {
 
   useEffect(() => {
     if (!bookingId) return;
+    fetchBooking();
+  }, [bookingId]);
 
+  const fetchBooking = () => {
     getBooking(bookingId).then((res) => {
       if (res.status) {
         setBooking(res.data);
-        setFormData(res.data); // Pre-fill form with booking data
+        setFormData(res.data);
       } else {
         alert(res.message || "Failed to load booking.");
       }
     });
-  }, [bookingId]);
+  };
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
-
     const res = await deleteBooking(bookingId);
     if (res.status) {
       alert("Booking deleted.");
@@ -38,20 +39,11 @@ const BookingDetails = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-
     const res = await updateBooking(bookingId, formData);
     if (res.status) {
-      setBooking(res.data);
+      alert("Booking updated.");
       setEditing(false);
-      alert("Booking updated successfully.");
-      getBooking(bookingId).then((res) => {
-        if (res.status) {
-          setBooking(res.data);
-          setFormData(res.data);
-        } else{
-            //do nothing, already handled in useEffect
-        }
-      });
+      fetchBooking();
     } else {
       alert(res.message || "Failed to update booking.");
     }
@@ -70,7 +62,9 @@ const BookingDetails = () => {
             <input
               type="text"
               value={formData.pickup_address || ""}
-              onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, pickup_address: e.target.value })
+              }
               className="w-full border rounded px-3 py-2"
               required
             />
@@ -80,7 +74,9 @@ const BookingDetails = () => {
             <input
               type="text"
               value={formData.drop_address || ""}
-              onChange={(e) => setFormData({ ...formData, drop_address: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, drop_address: e.target.value })
+              }
               className="w-full border rounded px-3 py-2"
               required
             />
@@ -90,12 +86,13 @@ const BookingDetails = () => {
             <input
               type="datetime-local"
               value={formData.scheduled_time?.slice(0, 16) || ""}
-              onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, scheduled_time: e.target.value })
+              }
               className="w-full border rounded px-3 py-2"
               required
             />
           </div>
-
           <div className="flex gap-3">
             <button
               type="submit"
@@ -117,12 +114,30 @@ const BookingDetails = () => {
           <p><strong>From:</strong> {booking.pickup_address}</p>
           <p><strong>To:</strong> {booking.drop_address}</p>
           <p><strong>Date:</strong> {new Date(booking.scheduled_time).toLocaleString("en-BD")}</p>
-          <p><strong>Distance:</strong> {booking.distance_km} km</p>
-          <p><strong>Price:</strong> ৳{booking.price}</p>
           <p><strong>Status:</strong> {booking.status}</p>
-          <p className="text-sm text-gray-500"><strong>Created:</strong> {new Date(booking.created_at).toLocaleString("en-BD")}</p>
+          <p><strong>Distance:</strong> {booking.distance_km || "N/A"} km</p>
+          <p><strong>Price:</strong> {booking.price ? `৳${booking.price}` : "Pending"}</p>
 
-          <div className="flex gap-4 mt-4">
+          {/* ✅ Offer Confirmation Info */}
+          {booking.status === "confirmed" && booking.confirmed_offer ? (
+            <div className="border p-3 mt-3 rounded bg-green-50 text-green-800">
+              <h4 className="font-semibold mb-1">Confirmed Offer</h4>
+              <p><strong>Driver:</strong> {booking.confirmed_offer.driver_name}</p>
+              <p><strong>Price:</strong> ৳{booking.confirmed_offer.price}</p>
+              <p><strong>Message:</strong> {booking.confirmed_offer.message}</p>
+            </div>
+          ) : booking.status === "pending" ? (
+            <div className="mt-4">
+              <button
+                onClick={() => navigate(`/offers/${booking.id}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                View Driver Offers
+              </button>
+            </div>
+          ) : null}
+
+          <div className="flex gap-4 mt-6">
             <button
               onClick={() => setEditing(true)}
               className="text-blue-600 hover:underline"
