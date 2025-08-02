@@ -58,15 +58,21 @@ $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicl
 |--------------------------------------------------------------------------
 | 📦 Booking Management (User & Driver)
 |--------------------------------------------------------------------------
-| Create, view, and manage trip bookings.
+| User posts a booking request (like a gig), drivers send offers, and user accepts.
 */
 
-$router->get('/bookings', 'BookingController@index'); // List all bookings (filtered by role)
-$router->get('/bookings/{id}', 'BookingController@show'); // Show specific booking
-$router->post('/bookings', 'BookingController@store'); // Create new booking
-$router->put('/bookings/{id}', 'BookingController@update'); // Update booking info
-$router->delete('/bookings/{id}', 'BookingController@destroy'); // Cancel/delete booking
+// Bookings (requested by user)
+$router->get('/bookings', 'BookingController@index'); // List bookings (own or all by role)
+$router->get('/bookings/{id}', 'BookingController@show'); // Show booking
+$router->post('/bookings', 'BookingController@store'); // Create booking request
+$router->put('/bookings/{id}', 'BookingController@update'); // Update booking (optional)
+$router->delete('/bookings/{id}', 'BookingController@destroy'); // Cancel booking
 
+// Offers (sent by driver)
+$router->post('/booking-offers', 'BookingOfferController@store'); // Driver sends offer
+$router->get('/booking-offers/{booking_id}', 'BookingOfferController@getOffersByBooking'); // List all offers for a booking
+$router->post('/booking-offers/{id}/accept', 'BookingOfferController@acceptOffer'); // User accepts one offer
+$router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
 
 /*
 |--------------------------------------------------------------------------
