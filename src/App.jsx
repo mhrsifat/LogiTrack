@@ -1,5 +1,3 @@
-// src/App.jsx
-
 // Core CSS
 import "./App.css";
 
@@ -11,9 +9,10 @@ import {
     useLocation
 } from "react-router-dom";
 
-// Global layout components
+// Global Layout Components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 // =====================
 // Page Imports
@@ -29,6 +28,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmailVerify from "./pages/EmailVerify";
+import VerifyEmail from "./pages/VerifyEmail";
 
 // User Pages
 import Profile from "./pages/Profile";
@@ -37,6 +37,14 @@ import BookingHistory from "./pages/BookingHistory";
 import Dashboard from "./pages/Dashboard";
 import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
+import BookNow from "./pages/BookNow";
+import ApplyAsDriver from "./pages/ApplyAsDriver";
+
+// Booking Offer Flow
+import BookingRequestList from "./pages/BookingRequestList";        // Drivers see available bookings
+import BookingOfferForm from "./pages/BookingOfferForm";            // Driver submits offer
+import BookingOfferList from "./pages/BookingOfferList";            // User sees all offers
+import BookingOfferConfirm from "./pages/BookingOfferConfirm";      // User confirms one offer
 
 // Admin Pages
 import VehicleManagement from "./pages/VehicleManagement";
@@ -44,16 +52,12 @@ import Users from "./admin/Users";
 import VehicleList from "./admin/VehicleList";
 import VehicleForm from "./admin/VehicleForm";
 import VehicleDetails from "./admin/VehicleDetails";
-
-// Extra Pages
 import Admin from "./admin/admin";
-import BookNow from "./pages/BookNow";
-import ApplyAsDriver from "./pages/ApplyAsDriver";
-import VerifyEmail from "./pages/VerifyEmail";
-import NotFound from "./pages/NotFound";
-import ScrollToTop from "./components/ScrollToTop";
 
-// ✅ Create wrapper to use hooks
+// Extra
+import NotFound from "./pages/NotFound";
+
+// App Wrapper with Header/Footer Layout
 const AppWrapper = () => {
     const location = useLocation();
     const isHome = location.pathname === "/";
@@ -77,10 +81,7 @@ const AppWrapper = () => {
 
                     {/* User Routes */}
                     <Route path="/profile" element={<Profile />} />
-                    <Route
-                        path="/booking-details"
-                        element={<BookingDetails />}
-                    />
+                    <Route path="/booking-details" element={<BookingDetails />} />
                     <Route path="/my-bookings" element={<BookingHistory />} />
                     <Route path="/book-now" element={<BookNow />} />
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -88,25 +89,19 @@ const AppWrapper = () => {
                     <Route path="/applyasdriver" element={<ApplyAsDriver />} />
                     <Route path="/notifications" element={<Notifications />} />
 
+                    {/* Booking Offer Flow Routes */}
+                    <Route path="/booking-requests" element={<BookingRequestList />} />     {/* Driver View */}
+                    <Route path="/offer/:bookingId" element={<BookingOfferForm />} />       {/* Driver View */}
+                    <Route path="/offers/:bookingId" element={<BookingOfferList />} />      {/* User View */}
+                    <Route path="/confirm-offer/:offerId" element={<BookingOfferConfirm />} /> {/* User View */}
+
                     {/* Admin Routes */}
-                    <Route
-                        path="/admin/vehicle-management"
-                        element={<VehicleManagement />}
-                    />
+                    <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
                     <Route path="/admin/users" element={<Users />} />
                     <Route path="/admin/vehicles" element={<VehicleList />} />
-                    <Route
-                        path="/admin/vehicles/create"
-                        element={<VehicleForm />}
-                    />
-                    <Route
-                        path="/admin/vehicles/edit/:id"
-                        element={<VehicleForm />}
-                    />
-                    <Route
-                        path="/admin/vehicles/:id"
-                        element={<VehicleDetails />}
-                    />
+                    <Route path="/admin/vehicles/create" element={<VehicleForm />} />
+                    <Route path="/admin/vehicles/edit/:id" element={<VehicleForm />} />
+                    <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
                     <Route path="/admin/*" element={<Admin />} />
 
                     {/* 404 Fallback */}
@@ -118,7 +113,7 @@ const AppWrapper = () => {
     );
 };
 
-// ✅ Use Router here and render wrapper inside
+// Main App with Router
 const App = () => {
     return (
         <Router>
