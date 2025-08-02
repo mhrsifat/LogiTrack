@@ -1,11 +1,15 @@
 // src/App.jsx
 
-
 // Core CSS
 import "./App.css";
 
 // React Router
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    useLocation
+} from "react-router-dom";
 
 // Global layout components
 import Header from "./components/Header";
@@ -51,62 +55,77 @@ import ScrollToTop from "./components/ScrollToTop";
 
 // ✅ Create wrapper to use hooks
 const AppWrapper = () => {
-  const location = useLocation();
-  const isHome = location.pathname === "/";
+    const location = useLocation();
+    const isHome = location.pathname === "/";
 
-  return (
-    <>
-      <Header />
-      <div className={`${isHome ? "" : "mt-20"}`}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
+    return (
+        <>
+            <Header />
+            <div className={`${isHome ? "" : "mt-20"}`}>
+                <Routes>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/contact" element={<Contact />} />
 
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/email-verify" element={<EmailVerify />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
+                    {/* Auth Routes */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/email-verify" element={<EmailVerify />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
 
-          {/* User Routes */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/booking-details" element={<BookingDetails />} />
-          <Route path="/my-bookings" element={<BookingHistory />} />
-          <Route path="/book-now" element={<BookNow />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/applyasdriver" element={<ApplyAsDriver />} />
-          <Route path="/notifications" element={<Notifications />} />
+                    {/* User Routes */}
+                    <Route path="/profile" element={<Profile />} />
+                    <Route
+                        path="/booking-details"
+                        element={<BookingDetails />}
+                    />
+                    <Route path="/my-bookings" element={<BookingHistory />} />
+                    <Route path="/book-now" element={<BookNow />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/applyasdriver" element={<ApplyAsDriver />} />
+                    <Route path="/notifications" element={<Notifications />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
-          <Route path="/admin/users" element={<Users />} />
-          <Route path="/admin/vehicles" element={<VehicleList />} />
-          <Route path="/admin/vehicles/create" element={<VehicleForm />} />
-          <Route path="/admin/vehicles/edit/:id" element={<VehicleForm />} />
-          <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
-          <Route path="/admin/*" element={<Admin />} />
+                    {/* Admin Routes */}
+                    <Route
+                        path="/admin/vehicle-management"
+                        element={<VehicleManagement />}
+                    />
+                    <Route path="/admin/users" element={<Users />} />
+                    <Route path="/admin/vehicles" element={<VehicleList />} />
+                    <Route
+                        path="/admin/vehicles/create"
+                        element={<VehicleForm />}
+                    />
+                    <Route
+                        path="/admin/vehicles/edit/:id"
+                        element={<VehicleForm />}
+                    />
+                    <Route
+                        path="/admin/vehicles/:id"
+                        element={<VehicleDetails />}
+                    />
+                    <Route path="/admin/*" element={<Admin />} />
 
-          {/* 404 Fallback */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-      <Footer />
-    </>
-  );
+                    {/* 404 Fallback */}
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </div>
+            <Footer />
+        </>
+    );
 };
 
 // ✅ Use Router here and render wrapper inside
 const App = () => {
-  return (
-    <Router>
-      <ScrollToTop />
-      <AppWrapper />
-    </Router>
-  );
+    return (
+        <Router>
+            <ScrollToTop />
+            <AppWrapper />
+        </Router>
+    );
 };
 
 export default App;
