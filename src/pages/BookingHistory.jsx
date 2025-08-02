@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { getAllBookings, deleteBooking } from "../api/BookingAPI";
 
@@ -7,6 +7,7 @@ const BookingHistory = () => {
   const { user } = useContext(UserContext);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -59,10 +60,12 @@ const BookingHistory = () => {
                 {new Date(booking.scheduled_time).toLocaleString("en-BD")}
               </p>
               <p>
-                <strong>Distance:</strong> {booking.distance_km} km
+                <strong>Distance:</strong>{" "}
+                {booking.distance_km ?? "N/A"} km
               </p>
               <p>
-                <strong>Price:</strong> ৳{booking.price}
+                <strong>Price:</strong>{" "}
+                {booking.price ? `৳${booking.price}` : "Pending"}
               </p>
               <p>
                 <strong>Status:</strong>{" "}
@@ -90,6 +93,17 @@ const BookingHistory = () => {
                 >
                   View
                 </Link>
+
+                {/* Show View Offers if booking is pending */}
+                {booking.status === "pending" && (
+                  <button
+                    onClick={() => navigate(`/offers/${booking.id}`)}
+                    className="text-green-600 hover:underline"
+                  >
+                    View Offers
+                  </button>
+                )}
+
                 <button
                   onClick={() => handleDelete(booking.id)}
                   className="text-red-600 hover:underline"
