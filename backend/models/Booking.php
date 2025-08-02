@@ -37,14 +37,41 @@ class Booking
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+  
+  // In Booking.php model class, add this method:
+
+public function getConfirmedOffer($bookingId)
+{
+    $sql = "SELECT bo.id, bo.price, bo.message, u.name AS driver_name, u.id AS driver_id
+            FROM booking_offers bo
+            JOIN users u ON bo.driver_id = u.id
+            WHERE bo.booking_id = ? AND bo.is_confirmed = 1
+            LIMIT 1";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$bookingId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
   // 🔍 Single booking
   public function getById($id)
-  {
-    $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
+{
+    $stmt = $this->pdo->prepare("SELECT * FROM bookings WHERE id = ?");
     $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-  }
+    $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($booking) {
+        // Attach confirmed offer info if exists
+        $confirmedOffer = $this->getConfirmedOffer($id);
+        if ($confirmedOffer) {
+            $booking['confirmed_offer'] = $confirmedOffer;
+        } else {
+            $booking['confirmed_offer'] = null;
+        }
+    }
+
+    return $booking;
+}
 
   // 🆕 Create booking (user posts gig request)
   public function create($data)
