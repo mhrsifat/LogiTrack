@@ -58,4 +58,18 @@ class VehicleController
         $this->vehicleModel->delete($id);
         echo json_encode(["status" => "success", "message" => "Vehicle deleted successfully"]);
     }
+
+    public function showDriverVehicle()
+    {
+        $driverId = $_SESSION["userId"];
+        $vehicle = $this->vehicleModel->getByUserId($driverId);
+
+        if (!$vehicle) {
+            http_response_code(404);
+            echo json_encode(["error" => "Vehicle not found"]);
+            return;
+        }
+
+        echo json_encode(["status" => "success", "data" => $vehicle]);
+    }
 }

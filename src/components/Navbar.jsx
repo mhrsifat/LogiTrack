@@ -103,18 +103,18 @@ const Navbar = () => {
               <>
                 <li>
                   <Link
-                    to="/driver/bookings"
+                    to="/booking-requests"
                     className="hover:text-blue-500 p-2 rounded-lg"
                   >
-                    My Bookings
+                    Find Bookings
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/driver/documents"
+                    to="/booking-history"
                     className="hover:text-blue-500 p-2 rounded-lg"
                   >
-                    My Documents
+                    Booking History
                   </Link>
                 </li>
               </>

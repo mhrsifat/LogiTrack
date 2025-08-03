@@ -3,30 +3,38 @@ require_once __DIR__ . "/../config/database.php";
 
 class Vehicle
 {
-  private $conn;
+  private $pdo;
+
+  private $table = "vehicles";
 
   public function __construct()
   {
-    $db = new Database();
-    $this->conn = $db->getConnection();
+    $this->pdo = connectDB();
   }
 
   public function getAll()
   {
-    $stmt = $this->conn->query("SELECT * FROM vehicles");
+    $stmt = $this->pdo->query("SELECT * FROM vehicles");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
   public function getById($id)
   {
-    $stmt = $this->conn->prepare("SELECT * FROM vehicles WHERE id = ?");
+    $stmt = $this->pdo->prepare("SELECT * FROM vehicles WHERE id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function getByUserId($id)
+  {
+    $stmt = $this->pdo->prepare("SELECT * FROM vehicles WHERE user_id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
   public function create($data)
   {
-    $stmt = $this->conn->prepare(
+    $stmt = $this->pdo->prepare(
       "INSERT INTO vehicles (owner_id, vehicle_type, license_plate, capacity, status) VALUES (?, ?, ?, ?, ?)"
     );
     $stmt->execute([
@@ -37,13 +45,13 @@ class Vehicle
       $data["status"],
     ]);
 
-    $data["id"] = $this->conn->lastInsertId();
+    $data["id"] = $this->pdo->lastInsertId();
     return $data;
   }
 
   public function update($id, $data)
   {
-    $stmt = $this->conn->prepare(
+    $stmt = $this->pdo->prepare(
       "UPDATE vehicles SET vehicle_type = ?, license_plate = ?, capacity = ?, status = ? WHERE id = ?"
     );
     return $stmt->execute([
@@ -57,7 +65,7 @@ class Vehicle
 
   public function delete($id)
   {
-    $stmt = $this->conn->prepare("DELETE FROM vehicles WHERE id = ?");
+    $stmt = $this->pdo->prepare("DELETE FROM vehicles WHERE id = ?");
     return $stmt->execute([$id]);
   }
 }

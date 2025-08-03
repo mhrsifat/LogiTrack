@@ -3,6 +3,7 @@ import { useUser } from "../contexts/UserContext";
 import { BASE_URL } from "../config";
 import Successfull from "../components/Successfull";
 import ErrorBox from "../components/ErrorBox";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { user, setUser } = useUser();
@@ -14,6 +15,7 @@ const Profile = () => {
 
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [vehicleData, setVehicleData] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -22,8 +24,31 @@ const Profile = () => {
         email: user.email || "",
         phone: user.phone || "",
       });
+
+      if (user.role === "driver") {
+        fetchDriverVehicle(user.id);
+      }
     }
   }, [user]);
+
+  const fetchDriverVehicle = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/vehicles-driver`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const result = await response.json();
+      if (result.status) {
+        setVehicleData(result.data); // ✅ Vehicle exists
+      } else {
+        setVehicleData(null); // ❌ No vehicle
+      }
+    } catch (err) {
+      console.error("Vehicle fetch failed", err);
+      setVehicleData(null);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -112,6 +137,27 @@ const Profile = () => {
           Update Profile
         </button>
       </form>
+
+      {/* 🚚 Vehicle section for drivers only */}
+      {user?.role === "driver" && (
+        <div className="mt-6 text-center">
+          {vehicleData ? (
+            <Link
+              to="/update-vehicle"
+              className="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+            >
+              Update Document
+            </Link>
+          ) : (
+            <Link
+              to="/submit-vehicle"
+              className="inline-block bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600"
+            >
+              Submit Document
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 };

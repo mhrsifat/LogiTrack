@@ -50,6 +50,7 @@ $router->delete('/users/{id}', 'UserController@destroy'); // Delete user
 
 $router->get('/vehicles', 'VehicleController@index'); // List all vehicles
 $router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle
+$router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle
 $router->post('/vehicles', 'VehicleController@store'); // Create new vehicle
 $router->put('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
 $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicle
@@ -73,6 +74,10 @@ $router->post('/booking-offers', 'BookingOfferController@store'); // Driver send
 $router->get('/booking-offers/{booking_id}', 'BookingOfferController@getOffersByBooking'); // List all offers for a booking
 $router->post('/booking-offers/{id}/accept', 'BookingOfferController@acceptOffer'); // User accepts one offer
 $router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
+
+// Booking offers (Driver sends offers)
+$router->post('/booking-offers-driver', 'BookingController@sendOffer');
+$router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'); // List bookings history for driver(own)
 
 /*
 |--------------------------------------------------------------------------

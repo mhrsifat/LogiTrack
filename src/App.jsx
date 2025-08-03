@@ -56,6 +56,9 @@ import Admin from "./admin/admin";
 
 // Extra
 import NotFound from "./pages/NotFound";
+import BookingHistoryDriver from "./pages/BookingHistoryDriver";
+import SubmitVehicle from "./pages/SubmitVehicle";
+import UpdateVehicle from "./pages/UpdateVehicle";
 
 // App Wrapper with Header/Footer Layout
 const AppWrapper = () => {
@@ -91,9 +94,14 @@ const AppWrapper = () => {
 
                     {/* Booking Offer Flow Routes */}
                     <Route path="/booking-requests" element={<BookingRequestList />} />     {/* Driver View */}
+                    <Route path="/booking-history" element={<BookingHistoryDriver />} />     {/* Driver View */}
                     <Route path="/offer/:bookingId" element={<BookingOfferForm />} />       {/* Driver View */}
                     <Route path="/offers/:id" element={<BookingOfferList />} />      {/* User View */}
                     <Route path="/confirm-offer/:offerId" element={<BookingOfferConfirm />} /> {/* User View */}
+
+                    {/* Driver Routes */}
+                    <Route path="/submit-vehicle" element={<SubmitVehicle />} />
+                    <Route path="/update-vehicle" element={<UpdateVehicle />} />
 
                     {/* Admin Routes */}
                     <Route path="/admin/vehicle-management" element={<VehicleManagement />} />

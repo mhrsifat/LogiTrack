@@ -37,11 +37,11 @@ class Booking
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
-  
+
   // In Booking.php model class, add this method:
 
-public function getConfirmedOffer($bookingId)
-{
+  public function getConfirmedOffer($bookingId)
+  {
     $sql = "SELECT bo.id, bo.offered_price AS price, bo.message, u.name AS driver_name, u.id AS driver_id
             FROM booking_offers bo
             JOIN users u ON bo.driver_id = u.id
@@ -51,27 +51,27 @@ public function getConfirmedOffer($bookingId)
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute([$bookingId]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+  }
 
   // 🔍 Single booking
   public function getById($id)
-{
+  {
     $stmt = $this->pdo->prepare("SELECT * FROM bookings WHERE id = ?");
     $stmt->execute([$id]);
     $booking = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($booking) {
-        // Attach confirmed offer info if exists
-        $confirmedOffer = $this->getConfirmedOffer($id);
-        if ($confirmedOffer) {
-            $booking['confirmed_offer'] = $confirmedOffer;
-        } else {
-            $booking['confirmed_offer'] = null;
-        }
+      // Attach confirmed offer info if exists
+      $confirmedOffer = $this->getConfirmedOffer($id);
+      if ($confirmedOffer) {
+        $booking['confirmed_offer'] = $confirmedOffer;
+      } else {
+        $booking['confirmed_offer'] = null;
+      }
     }
 
     return $booking;
-}
+  }
 
   // 🆕 Create booking (user posts gig request)
   public function create($data)
@@ -115,5 +115,39 @@ public function getConfirmedOffer($bookingId)
     $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id = ?");
     return $stmt->execute([$id]);
   }
+
+  public function createOffer($booking_id, $driver_id, $offered_price, $message = null)
+  {
+    $sql = "INSERT INTO booking_offers (`booking_id`, `driver_id`, `offered_price`, `message`)
+            VALUES (:booking_id, :driver_id, :offered_price, :message)";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+      ":booking_id" => $booking_id,
+      ":driver_id" => $driver_id,
+      ":offered_price" => $offered_price,
+      ":message" => $message
+    ]);
+  }
+
+  public function getOffersByBookingId($booking_id)
+  {
+    $sql = "SELECT * FROM booking_offers WHERE booking_id = :booking_id ORDER BY created_at DESC";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':booking_id' => $booking_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getOffersByDriver($driverId)
+{
+    $sql = "SELECT o.*, b.pickup_address, b.drop_address, b.scheduled_time, b.status AS booking_status
+            FROM booking_offers o
+            JOIN bookings b ON o.booking_id = b.id
+            WHERE o.driver_id = ?
+            ORDER BY o.created_at DESC";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$driverId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 }

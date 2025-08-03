@@ -138,4 +138,70 @@ class BookingController
       return ResponseHelper::error("Failed to delete booking.");
     }
   }
+
+  public function sendOffer()
+  {
+    AccessControl::requireRole(["driver"]);
+    $currentUser = AccessControl::getCurrentUser();
+
+    if (!$currentUser) {
+      return ResponseHelper::unauthorized("Driver not logged in.");
+    }
+
+
+    $data = json_decode(file_get_contents("php://input"), true);
+    $bookingId = $data['booking_id'];
+
+    $booking = $this->bookingModel->getById($bookingId);
+    if (!$booking) {
+      return ResponseHelper::notFound("Booking not found.");
+    }
+
+    if ($booking["status"] !== "pending") {
+      return ResponseHelper::badRequest("Cannot offer on a non-pending booking.");
+    }
+
+    if (empty($data["proposed_price"]) || !is_numeric($data["proposed_price"])) {
+      return ResponseHelper::validationError("Valid proposed_price is required.");
+    }
+
+    $success = $this->bookingModel->createOffer(
+      $bookingId,
+      $currentUser["id"],
+      $data["proposed_price"],
+      $data["message"] ?? null
+    );
+
+    if ($success) {
+      return ResponseHelper::success([], "Offer sent successfully.");
+    } else {
+      return ResponseHelper::error("Failed to send offer.");
+    }
+  }
+
+  public function getOffers($bookingId)
+  {
+    AccessControl::requireRole(["admin", "user", "driver"]);
+
+    $offers = $this->bookingModel->getOffersByBookingId($bookingId);
+    return ResponseHelper::success($offers, "Offers fetched.");
+  }
+
+  public function indexBookingHistory()
+    {
+        AccessControl::requireRole(['driver']);
+        $currentUser = AccessControl::getCurrentUser();
+
+        if (!$currentUser) {
+            return ResponseHelper::unauthorized("User not logged in.");
+        }
+
+        $driverId = $currentUser['id'];
+
+        $offers = $this->bookingModel->getOffersByDriver($driverId);
+
+        return ResponseHelper::success($offers, "Driver's booking offers fetched.");
+    }
+
+ 
 }
