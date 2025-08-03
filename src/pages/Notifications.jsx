@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../config";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -9,7 +10,7 @@ const Notifications = () => {
   // Fetch notifications from backend
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("/api/notifications", {
+      const response = await fetch(BASE_URL + "/notifications", {
         credentials: "include",
       });
 
@@ -34,7 +35,7 @@ const Notifications = () => {
   // Mark a notification as read
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`/api/notifications/${id}/read`, {
+      const response = await fetch(BASE_URL + `/notifications/${id}/read`, {
         method: "PUT",
         credentials: "include",
       });

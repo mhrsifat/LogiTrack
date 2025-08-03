@@ -12,22 +12,24 @@ const BookingDetails = () => {
 
   useEffect(() => {
     if (!bookingId) return;
+
+    const fetchBooking = () => {
+      getBooking(bookingId).then((res) => {
+        if (res.status) {
+          setBooking(res.data);
+          setFormData(res.data);
+        } else {
+          alert(res.message || "Failed to load booking.");
+        }
+      });
+    };
+
     fetchBooking();
   }, [bookingId]);
 
-  const fetchBooking = () => {
-    getBooking(bookingId).then((res) => {
-      if (res.status) {
-        setBooking(res.data);
-        setFormData(res.data);
-      } else {
-        alert(res.message || "Failed to load booking.");
-      }
-    });
-  };
-
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
+
     const res = await deleteBooking(bookingId);
     if (res.status) {
       alert("Booking deleted.");
@@ -43,7 +45,13 @@ const BookingDetails = () => {
     if (res.status) {
       alert("Booking updated.");
       setEditing(false);
-      fetchBooking();
+      // Refresh booking data after update
+      getBooking(bookingId).then((res) => {
+        if (res.status) {
+          setBooking(res.data);
+          setFormData(res.data);
+        }
+      });
     } else {
       alert(res.message || "Failed to update booking.");
     }
@@ -111,20 +119,40 @@ const BookingDetails = () => {
         </form>
       ) : (
         <div className="space-y-2 text-gray-800">
-          <p><strong>From:</strong> {booking.pickup_address}</p>
-          <p><strong>To:</strong> {booking.drop_address}</p>
-          <p><strong>Date:</strong> {new Date(booking.scheduled_time).toLocaleString("en-BD")}</p>
-          <p><strong>Status:</strong> {booking.status}</p>
-          <p><strong>Distance:</strong> {booking.distance_km || "N/A"} km</p>
-          <p><strong>Price:</strong> {booking.price ? `৳${booking.price}` : "Pending"}</p>
+          <p>
+            <strong>From:</strong> {booking.pickup_address}
+          </p>
+          <p>
+            <strong>To:</strong> {booking.drop_address}
+          </p>
+          <p>
+            <strong>Date:</strong>{" "}
+            {new Date(booking.scheduled_time).toLocaleString("en-BD")}
+          </p>
+          <p>
+            <strong>Status:</strong> {booking.status}
+          </p>
+          <p>
+            <strong>Distance:</strong> {booking.distance_km || "N/A"} km
+          </p>
+          <p>
+            <strong>Price:</strong>{" "}
+            {booking.price ? `৳${booking.price}` : "Pending"}
+          </p>
 
-          {/* ✅ Offer Confirmation Info */}
+          {/* Confirmed offer info */}
           {booking.status === "confirmed" && booking.confirmed_offer ? (
             <div className="border p-3 mt-3 rounded bg-green-50 text-green-800">
               <h4 className="font-semibold mb-1">Confirmed Offer</h4>
-              <p><strong>Driver:</strong> {booking.confirmed_offer.driver_name}</p>
-              <p><strong>Price:</strong> ৳{booking.confirmed_offer.price}</p>
-              <p><strong>Message:</strong> {booking.confirmed_offer.message}</p>
+              <p>
+                <strong>Driver:</strong> {booking.confirmed_offer.driver_name}
+              </p>
+              <p>
+                <strong>Price:</strong> ৳{booking.confirmed_offer.price}
+              </p>
+              <p>
+                <strong>Message:</strong> {booking.confirmed_offer.message}
+              </p>
             </div>
           ) : booking.status === "pending" ? (
             <div className="mt-4">

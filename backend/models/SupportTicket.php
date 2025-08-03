@@ -37,20 +37,21 @@ class SupportTicket
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
-  public function create($data)
-  {
-    $stmt = $this->pdo->prepare("
-      INSERT INTO {$this->table} (user_id, subject, description, status, priority, assigned_to, created_at, updated_at)
-      VALUES (:user_id, :subject, :description, 'open', :priority, :assigned_to, NOW(), NOW())
-    ");
-    return $stmt->execute([
-      ':user_id'     => $data['user_id'],
-      ':subject'     => $data['subject'],
-      ':description' => $data['description'],
-      ':priority'    => $data['priority'] ?? 'medium',
-      ':assigned_to' => $data['assigned_to'] ?? null,
-    ]);
-  }
+ public function create($data)
+{
+  $stmt = $this->pdo->prepare("
+    INSERT INTO {$this->table} (user_id, subject, description, status, priority, assigned_to, created_at, updated_at)
+    VALUES (:user_id, :subject, :description, 'open', :priority, :assigned_to, NOW(), NOW())
+  ");
+  return $stmt->execute([
+    ':user_id'     => $data['user_id'],
+    ':subject'     => $data['subject'],
+    ':description' => $data['description'],
+    ':priority'    => $data['priority'] ?? 'medium',
+    ':assigned_to' => $data['assigned_to'] ?? null,
+  ]);
+}
+
 
   public function update($id, $userId, $role, $data)
   {

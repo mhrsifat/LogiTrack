@@ -92,7 +92,7 @@ const AppWrapper = () => {
                     {/* Booking Offer Flow Routes */}
                     <Route path="/booking-requests" element={<BookingRequestList />} />     {/* Driver View */}
                     <Route path="/offer/:bookingId" element={<BookingOfferForm />} />       {/* Driver View */}
-                    <Route path="/offers/:bookingId" element={<BookingOfferList />} />      {/* User View */}
+                    <Route path="/offers/:id" element={<BookingOfferList />} />      {/* User View */}
                     <Route path="/confirm-offer/:offerId" element={<BookingOfferConfirm />} /> {/* User View */}
 
                     {/* Admin Routes */}

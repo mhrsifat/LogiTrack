@@ -1,212 +1,119 @@
-import React, { useEffect, useState, useRef } from "react";
-import { BASE_URL } from "../config";
-import ErrorBox from "../components/ErrorBox";
-import Successfull from "../components/Successfull";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
+import { createBooking } from "../api/BookingAPI";
 
-const BookNow = () => {
-  const [gigs, setGigs] = useState([]);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+const BookingForm = () => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  const [selectedGig, setSelectedGig] = useState(null);
-  const modalRef = useRef();
-
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     pickup_address: "",
     drop_address: "",
     scheduled_time: "",
-    distance_km: "",
-    price: "",
+    vehicle_type: "truck",
+    notes: "",
   });
 
-  useEffect(() => {
-    const fetchGigs = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${BASE_URL}/gigs`, {
-          credentials: "include",
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to load gigs");
-        if (Array.isArray(data.data)) {
-          setGigs(data.data);
-        } else {
-          throw new Error("Invalid data format: gigs not found");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchGigs();
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    function handleOutsideClick(event) {
-      if (
-        selectedGig &&
-        modalRef.current &&
-        !modalRef.current.contains(event.target)
-      ) {
-        setSelectedGig(null);
-      }
-    }
-
-    function handleEscapeKey(event) {
-      if (event.key === "Escape") {
-        setSelectedGig(null);
-      }
-    }
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscapeKey);
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscapeKey);
-    };
-  }, [selectedGig]);
-
-  const handleOpenModal = (gig) => {
-    setSelectedGig(gig);
-    setForm({
-      pickup_address: gig.pickup_location,
-      drop_address: gig.dropoff_location,
-      scheduled_time: new Date(gig.available_from)
-        .toISOString()
-        .slice(0, 16),
-      distance_km: "",
-      price: gig.price,
-    });
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleBooking = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/bookings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          vehicle_id: selectedGig.vehicle_id,
-          pickup_address: form.pickup_address,
-          drop_address: form.drop_address,
-          status: "pending",
-          scheduled_time: form.scheduled_time,
-        }),
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Booking failed");
-
-      setSuccess("Booking successful!");
-      setSelectedGig(null);
-    } catch (err) {
-      setError(err.message);
+    if (!user) {
+      alert("You must be logged in to book.");
+      return;
     }
+
+    const bookingPayload = {
+      ...formData,
+      user_id: user.user_id,
+    };
+
+    const res = await createBooking(bookingPayload);
+    if (res.status) {
+      navigate("/my-bookings");
+    } else {
+      setError(res.message || "Booking failed");
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Available Gigs</h2>
+    <div className="max-w-xl mx-auto px-4 py-6">
+      <h2 className="text-2xl font-semibold mb-4">Request a Booking</h2>
+      {error && <div className="text-red-600 mb-2">{error}</div>}
 
-      {error && <ErrorBox msg={error} />}
-      {success && <Successfull msg={success} />}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="pickup_address"
+          placeholder="Pickup Address"
+          value={formData.pickup_address}
+          onChange={handleChange}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-      {loading ? (
-        <p className="text-gray-500">Loading gigs...</p>
-      ) : gigs.length > 0 ? (
-        <div className="space-y-4">
-          {gigs.map((gig) => (
-            <div
-              key={gig.id}
-              className="p-4 border rounded shadow-sm flex justify-between items-center"
-            >
-              <div>
-                <p className="font-bold">From: {gig.pickup_location}</p>
-                <p>To: {gig.dropoff_location}</p>
-                <p>Vehicle: {gig.vehicle_type}</p>
-                <p>Price: {gig.price}৳</p>
-                <p>Date: {new Date(gig.available_from).toLocaleString()}</p>
-              </div>
-              <button
-                onClick={() => handleOpenModal(gig)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Book
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500">No gigs found.</p>
-      )}
+        <input
+          type="text"
+          name="drop_address"
+          placeholder="Drop Address"
+          value={formData.drop_address}
+          onChange={handleChange}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-      {/* MODAL */}
-      {selectedGig && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
-          >
-            <h3 className="text-xl font-bold mb-4">Confirm Booking</h3>
+        <input
+          type="datetime-local"
+          name="scheduled_time"
+          value={formData.scheduled_time}
+          onChange={handleChange}
+          required
+          className="w-full border px-3 py-2 rounded"
+        />
 
-            <label className="block mb-3">
-              Pickup Address
-              <input
-                type="text"
-                className="w-full border p-2 rounded"
-                value={form.pickup_address}
-                onChange={(e) =>
-                  setForm({ ...form, pickup_address: e.target.value })
-                }
-              />
-            </label>
+        <select
+          name="vehicle_type"
+          value={formData.vehicle_type}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        >
+          <option value="truck">Truck</option>
+          <option value="pickup">Pickup</option>
+          <option value="van">Van</option>
+        </select>
 
-            <label className="block mb-3">
-              Drop Address
-              <input
-                type="text"
-                className="w-full border p-2 rounded"
-                value={form.drop_address}
-                onChange={(e) =>
-                  setForm({ ...form, drop_address: e.target.value })
-                }
-              />
-            </label>
+        <textarea
+          name="notes"
+          placeholder="Any extra notes (optional)"
+          value={formData.notes}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
 
-            <label className="block mb-3">
-              Schedule Time
-              <input
-                type="datetime-local"
-                className="w-full border p-2 rounded"
-                value={form.scheduled_time}
-                onChange={(e) =>
-                  setForm({ ...form, scheduled_time: e.target.value })
-                }
-              />
-            </label>
-
-            <div className="flex justify-end space-x-4 mt-4">
-              <button
-                onClick={() => setSelectedGig(null)}
-                className="px-4 py-2 rounded border border-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleBooking}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Confirm Booking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {loading ? "Submitting..." : "Request Booking"}
+        </button>
+      </form>
     </div>
   );
 };
 
-export default BookNow;
+export default BookingForm;

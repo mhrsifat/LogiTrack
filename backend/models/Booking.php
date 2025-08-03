@@ -42,10 +42,10 @@ class Booking
 
 public function getConfirmedOffer($bookingId)
 {
-    $sql = "SELECT bo.id, bo.price, bo.message, u.name AS driver_name, u.id AS driver_id
+    $sql = "SELECT bo.id, bo.offered_price AS price, bo.message, u.name AS driver_name, u.id AS driver_id
             FROM booking_offers bo
             JOIN users u ON bo.driver_id = u.id
-            WHERE bo.booking_id = ? AND bo.is_confirmed = 1
+            WHERE bo.booking_id = ? AND bo.status = 'accepted'
             LIMIT 1";
 
     $stmt = $this->pdo->prepare($sql);
@@ -115,4 +115,5 @@ public function getConfirmedOffer($bookingId)
     $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id = ?");
     return $stmt->execute([$id]);
   }
+
 }

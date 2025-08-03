@@ -45,4 +45,18 @@ class AccessControl
             exit;
         }
     }
+
+     public static function getCurrentUser(): ?array
+    {
+        if (!self::isLoggedIn()) {
+            return null;
+        }
+
+        return [
+            "id" => $_SESSION['userId'],
+            "role" => $_SESSION['role'],
+            "email" => $_SESSION['email'] ?? null,
+            "name" => $_SESSION['name'] ?? null,
+        ];
+    }
 }

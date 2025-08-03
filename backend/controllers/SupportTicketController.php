@@ -47,31 +47,34 @@ class SupportTicketController
   }
 
   // POST /support-tickets
-  public function store()
-  {
-    if (!AccessControl::requireRole(["user"])) {
-      return ResponseHelper::unauthorized("Only users can create tickets.");
-    }
-
-    $input = json_decode(file_get_contents("php://input"), true);
-
-    if (empty($input["subject"]) || empty($input["message"])) {
-      return ResponseHelper::badRequest("Subject and message are required.");
-    }
-
-    $data = [
-      "user_id" => $_SESSION["userId"],
-      "subject" => trim($input["subject"]),
-      "message" => trim($input["message"]),
-    ];
-
-    $success = $this->ticketModel->create($data);
-    if ($success) {
-      return ResponseHelper::success("Support ticket created.");
-    } else {
-      return ResponseHelper::error("Failed to create ticket.");
-    }
+  // POST /support-tickets
+public function store()
+{
+  if (!AccessControl::requireRole(["user", "driver"])) {
+    return ResponseHelper::unauthorized("Only users can create tickets.");
   }
+
+  $input = json_decode(file_get_contents("php://input"), true);
+
+  if (empty($input["subject"]) || empty($input["description"])) {
+    return ResponseHelper::badRequest("Subject and description are required.");
+  }
+
+  $data = [
+    "user_id"     => $_SESSION["userId"],
+    "subject"     => trim($input["subject"]),
+    "description" => trim($input["description"]),
+    "priority"    => $input["priority"] ?? "medium"
+  ];
+
+  $success = $this->ticketModel->create($data);
+  if ($success) {
+    return ResponseHelper::success([], "Support ticket created.");
+  } else {
+    return ResponseHelper::error("Failed to create ticket.");
+  }
+}
+
 
   // PUT /support-tickets/{id}
   public function update($id)
@@ -92,7 +95,7 @@ class SupportTicketController
       );
     }
 
-    $userId = $_SESSION["user_id"];
+    $userId = $_SESSION["userId"];
     $role = $_SESSION["role"];
 
     $data = [
@@ -103,7 +106,7 @@ class SupportTicketController
 
     $success = $this->ticketModel->update($id, $userId, $role, $data);
     if ($success) {
-      return ResponseHelper::success("Support ticket updated.");
+      return ResponseHelper::success([], "Support ticket updated.");
     } else {
       return ResponseHelper::notFound("Ticket not found or access denied.");
     }
@@ -116,12 +119,12 @@ class SupportTicketController
       return ResponseHelper::unauthorized("Login required.");
     }
 
-    $userId = $_SESSION["user_id"];
+    $userId = $_SESSION["userId"];
     $role = $_SESSION["role"];
 
     $success = $this->ticketModel->delete($id, $userId, $role);
     if ($success) {
-      return ResponseHelper::success("Support ticket deleted.");
+      return ResponseHelper::success([], "Support ticket deleted.");
     } else {
       return ResponseHelper::notFound("Ticket not found or access denied.");
     }

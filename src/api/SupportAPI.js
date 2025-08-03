@@ -11,7 +11,7 @@ async function handleResponse(response) {
 
 export const getAllTickets = async () => {
   try {
-    const res = await fetch(`${API_BASE}/support-tickets`, {
+    const res = await fetch(`${API_BASE}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export const getAllTickets = async () => {
 
 export const createTicket = async (data) => {
   try {
-    const res = await fetch(`${API_BASE}/support-tickets`, {
+    const res = await fetch(`${API_BASE}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
