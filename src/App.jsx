@@ -52,7 +52,6 @@ import Users from "./admin/Users";
 import VehicleList from "./admin/VehicleList";
 import VehicleForm from "./admin/VehicleForm";
 import VehicleDetails from "./admin/VehicleDetails";
-import Admin from "./admin/admin.jsx";
 
 // Extra
 import NotFound from "./pages/NotFound";
@@ -110,7 +109,6 @@ const AppWrapper = () => {
                     <Route path="/admin/vehicles/create" element={<VehicleForm />} />
                     <Route path="/admin/vehicles/edit/:id" element={<VehicleForm />} />
                     <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
-                    <Route path="/admin/*" element={<Admin />} />
 
                     {/* 404 Fallback */}
                     <Route path="*" element={<NotFound />} />
