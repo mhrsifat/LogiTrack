@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy React App via FTP
 
 on:
@@ -24,10 +25,10 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload via FTP (testing hard-coded host)
+      - name: Upload via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.mhrsifat.xyz              # hard-coded for testing
+          server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
