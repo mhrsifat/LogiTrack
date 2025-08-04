@@ -24,10 +24,10 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload via FTP
+      - name: Upload via FTP (testing hard-coded host)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_HOST }}
+          server: ftp.mhrsifat.xyz              # hard-coded for testing
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
