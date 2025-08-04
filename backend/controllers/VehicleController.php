@@ -70,6 +70,6 @@ class VehicleController
             return;
         }
 
-        echo json_encode(["status" => "success", "data" => $vehicle]);
+        ResponseHelper::success($vehicle);
     }
 }

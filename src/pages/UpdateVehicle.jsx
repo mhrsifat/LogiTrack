@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useUser } from "../contexts/UserContext";
 import { BASE_URL } from "../config";
@@ -26,7 +27,7 @@ const UpdateVehicle = () => {
           credentials: "include",
         });
         const result = await res.json();
-        if (res.ok && result.status === "success") {
+        if (res.ok && result.status === true) {
           setVehicle(result.data);
           setFormData({
             vehicle_type: result.data.vehicle_type || "",
