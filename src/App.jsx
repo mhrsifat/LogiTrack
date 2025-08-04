@@ -52,7 +52,7 @@ import Users from "./admin/Users";
 import VehicleList from "./admin/VehicleList";
 import VehicleForm from "./admin/VehicleForm";
 import VehicleDetails from "./admin/VehicleDetails";
-import Admin from "../admin/Admin";
+import Admin from "./admin/admin.jsx";
 
 // Extra
 import NotFound from "./pages/NotFound";
