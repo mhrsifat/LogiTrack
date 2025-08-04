@@ -126,4 +126,25 @@ class VehicleDocument
       ':driver_id' => $driverId
     ]);
   }
+
+   public function insertDocument(array $data)
+    {
+        $sql = "INSERT INTO {$this->table}
+          (driver_id, vehicle_type, document_path, file_name, original_name)
+         VALUES (?,         ?,            ?,             ?,         ?)";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $ok = $stmt->execute([
+            $data['driver_id'],
+            $data['vehicle_type'],
+            $data['document_path'],
+            $data['file_name'],
+            $data['original_name'],
+        ]);
+
+        if (! $ok) {
+            return false;
+        }
+        return (int)$this->pdo->lastInsertId();
+    }
 }

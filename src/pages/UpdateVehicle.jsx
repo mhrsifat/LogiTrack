@@ -9,16 +9,17 @@ const UpdateVehicle = () => {
   const { user } = useUser();
   const [vehicle, setVehicle] = useState(null);
   const [formData, setFormData] = useState({
-    vehicle_type: "",
+    type: "",
     license_plate: "",
-    capacity: "",
+    capacity_kg: "",
     status: "",
   });
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Fetch driver’s vehicle on mount
+  // Fetch driver's vehicle
   useEffect(() => {
     const fetchVehicle = async () => {
       if (!user) return;
@@ -26,19 +27,20 @@ const UpdateVehicle = () => {
         const res = await fetch(`${BASE_URL}/vehicles-driver`, {
           credentials: "include",
         });
-        const result = await res.json();
-        if (res.ok && result.status === true) {
-          setVehicle(result.data);
+        const json = await res.json();
+        const v = json.data?.[0];
+        if (v) {
+          setVehicle(v);
           setFormData({
-            vehicle_type: result.data.vehicle_type || "",
-            license_plate: result.data.license_plate || "",
-            capacity: result.data.capacity || "",
-            status: result.data.status || "",
+            type: v.type || "",
+            license_plate: v.license_plate || "",
+            capacity_kg: v.capacity_kg || "",
+            status: v.status || "pending",
           });
         } else {
-          setError(result.error || "No vehicle found for this driver.");
+          setError("No vehicle record found.");
         }
-      } catch (err) {
+      } catch {
         setError("Failed to load vehicle.");
       } finally {
         setLoading(false);
@@ -47,34 +49,57 @@ const UpdateVehicle = () => {
     fetchVehicle();
   }, [user]);
 
-  const handleChange = (e) =>
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "photo") {
+      setFile(files[0]);
+    } else {
+      setFormData((p) => ({ ...p, [name]: value }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    // validate capacity
+    if (Number(formData.capacity_kg) <= 0) {
+      setError("Capacity must be a positive number.");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("type", formData.type);
+    fd.append("license_plate", formData.license_plate);
+    fd.append("capacity_kg", formData.capacity_kg);
+    fd.append("status", formData.status);
+    if (file) {
+      fd.append("photo", file);
+    }
+
     try {
-      const res = await fetch(`${BASE_URL}/vehicles/${vehicle.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
-      if (res.ok && result.status === "success") {
+      const res = await fetch(
+        `${BASE_URL}/vehicles/${vehicle.id}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: fd,
+        }
+      );
+      const json = await res.json();
+      if (res.ok && json.status) {
         setSuccess("Vehicle updated successfully!");
       } else {
-        setError(result.message || "Failed to update vehicle.");
+        setError(json.message || "Failed to update vehicle.");
       }
     } catch {
       setError("Server error. Try again.");
     }
   };
 
-  if (loading) return <div className="p-4">Loading vehicle data…</div>;
-  if (error) return <ErrorBox msg={error} />;
-  if (!vehicle) return null;
+  if (loading) return <div className="p-4">Loading…</div>;
+  if (error && !vehicle) return <ErrorBox msg={error} />;
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-xl rounded-lg">
@@ -83,21 +108,27 @@ const UpdateVehicle = () => {
       </h2>
 
       {success && <Successfull msg={success} />}
-      {error && <ErrorBox msg={error} />}
+      {error && vehicle && <ErrorBox msg={error} />}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Vehicle Type */}
         <div>
           <label className="block mb-1 font-medium">Vehicle Type</label>
-          <input
-            type="text"
-            name="vehicle_type"
+          <select
+            name="type"
             className="w-full border px-3 py-2 rounded-lg"
-            value={formData.vehicle_type}
+            value={formData.type}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Select type</option>
+            <option value="truck">Truck</option>
+            <option value="pickup">Pickup</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
+        {/* License Plate */}
         <div>
           <label className="block mb-1 font-medium">License Plate</label>
           <input
@@ -110,30 +141,46 @@ const UpdateVehicle = () => {
           />
         </div>
 
+        {/* Capacity */}
         <div>
-          <label className="block mb-1 font-medium">Capacity</label>
+          <label className="block mb-1 font-medium">Capacity (kg)</label>
           <input
             type="number"
-            name="capacity"
+            name="capacity_kg"
             className="w-full border px-3 py-2 rounded-lg"
-            value={formData.capacity}
+            value={formData.capacity_kg}
             onChange={handleChange}
             required
           />
         </div>
 
+          {/* Document Upload for vehicle_documents */}
+  <div>
+    <label className="block mb-1 font-medium">Upload Document</label>
+    <input
+      type="file"
+      name="document"
+      accept="image/*,.pdf"
+      onChange={handleChange}
+      className="w-full"
+    />
+  </div>
+
+
+        {/* Status Badge (read-only) */}
         <div>
           <label className="block mb-1 font-medium">Status</label>
-          <select
-            name="status"
-            className="w-full border px-3 py-2 rounded-lg"
-            value={formData.status}
-            onChange={handleChange}
-            required
+          <span
+            className={`inline-block w-full border px-3 py-2 rounded-lg text-center ${
+              vehicle.status === "approved"
+                ? "bg-green-100 text-green-700"
+                : vehicle.status === "rejected"
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            {vehicle.status}
+          </span>
         </div>
 
         <button

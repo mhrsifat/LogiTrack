@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/VehicleDocument.php';
-require_once __DIR__ . '/../helpers/ResponseHelper.php';
+require_once __DIR__ . '/../core/ResponseHelper.php';
 require_once __DIR__ . '/../core/AccessControl.php';
 
 class VehicleDocumentController
@@ -135,4 +135,47 @@ class VehicleDocumentController
 
     return false;
   }
+
+  public function submitDocument($driverId)
+    {
+        // 1) Ensure file was uploaded
+        if (empty($_FILES['document']) || $_FILES['document']['error'] !== UPLOAD_ERR_OK) {
+            return ResponseHelper::error("No file uploaded or upload error");
+        }
+
+        // 2) Move file into public/vehiclePic/
+        $tmpPath    = $_FILES['document']['tmp_name'];
+        $origName   = $_FILES['document']['name'];
+        $ext        = pathinfo($origName, PATHINFO_EXTENSION);
+        $storedName = uniqid('doc_') . "." . $ext;
+        $destDir    = __DIR__ . "/../../public/vehiclePic/";
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0755, true);
+        }
+        $destPath = $destDir . $storedName;
+        if (!move_uploaded_file($tmpPath, $destPath)) {
+            return ResponseHelper::error("Failed to move uploaded file");
+        }
+
+        // 3) Prepare data array
+        $data = [
+          'driver_id'     => $driverId,
+          'vehicle_type'  => $_POST['vehicle_type']  ?? null,
+          'document_path' => "/vehiclePic/" . $storedName,
+          'file_name'     => $storedName,
+          'original_name' => $origName,
+        ];
+
+        // 4) Insert into DB
+        $newId = $this->docModel->insertDocument($data);
+        if (! $newId) {
+            return ResponseHelper::error("Database insert failed");
+        }
+
+        return ResponseHelper::success(
+          ['document_id' => $newId],
+          "Document uploaded successfully"
+        );
+    }
+
 }

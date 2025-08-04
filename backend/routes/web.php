@@ -52,7 +52,7 @@ $router->get('/vehicles', 'VehicleController@index'); // List all vehicles
 $router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle
 $router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle
 $router->post('/vehicles', 'VehicleController@store'); // Create new vehicle
-$router->put('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
+$router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
 $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicle
 
 /*
