@@ -148,3 +148,4 @@ class VehicleDocument
         return (int)$this->pdo->lastInsertId();
     }
 }
+
