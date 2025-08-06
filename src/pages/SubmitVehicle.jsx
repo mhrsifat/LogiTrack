@@ -142,4 +142,3 @@ const SubmitVehicle = () => {
 }
 
 export default SubmitVehicle
-
