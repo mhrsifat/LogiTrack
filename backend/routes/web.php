@@ -49,9 +49,10 @@ $router->delete('/users/{id}', 'UserController@destroy'); // Delete user
 */
 
 $router->get('/vehicles', 'VehicleController@index'); // List all vehicles
+$router->get('/vehicles-exist', 'VehicleController@vehicleExist'); // List if vehicles exist for driver
 $router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle
 $router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle
-$router->post('/vehicles', 'VehicleController@store'); // Create new vehicle
+$router->post('/vehicle-documents', 'VehicleDocumentController@handleSubmitDocument'); // Create new vehicle
 $router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
 $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicle
 
@@ -128,7 +129,6 @@ $router->put('/notifications/{id}/read', 'NotificationController@markAsRead'); /
 */
 
 $router->get('/vehicle-documents', 'VehicleDocumentController@index'); // List documents
-$router->post('/vehicle-documents', 'VehicleDocumentController@store'); // Upload new doc
 $router->put('/vehicle-documents/{id}', 'VehicleDocumentController@update'); // Update document
 $router->delete('/vehicle-documents/{id}', 'VehicleDocumentController@destroy'); // Delete doc
 

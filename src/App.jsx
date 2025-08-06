@@ -58,6 +58,7 @@ import NotFound from "./pages/NotFound";
 import BookingHistoryDriver from "./pages/BookingHistoryDriver";
 import SubmitVehicle from "./pages/SubmitVehicle";
 import UpdateVehicle from "./pages/UpdateVehicle";
+import AdminDashboard from "./admin/AdminDashboard";
 
 // App Wrapper with Header/Footer Layout
 const AppWrapper = () => {
@@ -103,12 +104,15 @@ const AppWrapper = () => {
                     <Route path="/update-vehicle" element={<UpdateVehicle />} />
 
                     {/* Admin Routes */}
-                    <Route path="/admin/vehicle-management" element={<VehicleManagement />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin/vehicle-management" element={<VehicleManagement />} />                    
                     <Route path="/admin/users" element={<Users />} />
                     <Route path="/admin/vehicles" element={<VehicleList />} />
                     <Route path="/admin/vehicles/create" element={<VehicleForm />} />
                     <Route path="/admin/vehicles/edit/:id" element={<VehicleForm />} />
                     <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
+                    
+                    <Route path="/admin/*" element={<AdminDashboard />} />
 
                     {/* 404 Fallback */}
                     <Route path="*" element={<NotFound />} />

@@ -11,6 +11,7 @@ const VehicleList = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,12 +54,12 @@ const VehicleList = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Vehicles</h1>
-        <button
+        {/* <button
           onClick={() => navigate('/vehicles/create')}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           + Add Vehicle
-        </button>
+        </button> */}
       </div>
 
       {loading ? (

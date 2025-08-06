@@ -37,17 +37,8 @@ class VehicleController
         echo json_encode(["status" => "success", "data" => $vehicle]);
     }
 
-    // POST /vehicles - Create new vehicle
-    public function store()
-    {
-        $data = json_decode(file_get_contents("php://input"), true);
-        $result = $this->vehicleModel->create($data);
-
-        echo json_encode(["status" => "success", "message" => "Vehicle created successfully", "data" => $result]);
-    }
-
     // Post /vehicles/{id} - Update vehicle
-   public function update($id)
+    public function update($id)
     {
         // 1) Parse JSON fields for vehicle update
         //    (we’ll read fallback from POST if you prefer multipart)
@@ -120,5 +111,25 @@ class VehicleController
         }
 
         ResponseHelper::success($vehicle);
+    }
+    public function vehicleExist()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['userId'])) {
+            return ResponseHelper::unauthorized('You must be logged in.');
+        }
+
+        $driverId = $_SESSION['userId'];
+        $vehicle  = $this->vehicleModel->getByUserIdForExistCheck($driverId);
+
+        if ($vehicle) {
+            http_response_code(400);
+            return ResponseHelper::error("You have already submitted a vehicle. Please wait for approval.");
+        }
+
+        return ResponseHelper::success([], "No vehicle submitted yet.");
     }
 }

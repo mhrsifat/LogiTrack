@@ -43,7 +43,7 @@ const VehicleDetails = () => {
 
         <div className="mt-4 space-x-2">
           <button
-            onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}
+            onClick={() => navigate(`/admin/vehicles/edit/${vehicle.id}`)}
             className="bg-yellow-500 text-white px-4 py-2 rounded"
           >
             Edit

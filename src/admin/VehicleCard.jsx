@@ -12,13 +12,13 @@ const VehicleCard = ({ vehicle }) => {
       <p>Capacity: {vehicle.capacity}</p>
       <div className="mt-2 space-x-2">
         <button
-          onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+          onClick={() => navigate(`/admin/vehicles/${vehicle.id}`)}
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           View
         </button>
         <button
-          onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}
+          onClick={() => navigate(`/admin/vehicles/edit/${vehicle.id}`)}
           className="px-3 py-1 bg-yellow-500 text-white rounded"
         >
           Edit

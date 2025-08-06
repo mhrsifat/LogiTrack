@@ -78,14 +78,15 @@ class VehicleDocument
   public function create($data)
   {
     $stmt = $this->pdo->prepare("
-      INSERT INTO {$this->table} (driver_id, document_type, file_path, created_at)
-      VALUES (:driver_id, :document_type, :file_path, NOW())
+      INSERT INTO {$this->table} (driver_id, document_type, file_path, submit_id, created_at)
+      VALUES (:driver_id, :document_type, :file_path, :submit_id, NOW())
     ");
 
     return $stmt->execute([
       ':driver_id' => $data['driver_id'],
       ':document_type' => $data['document_type'],
-      ':file_path' => $data['file_path']
+      ':file_path' => $data['file_path'],
+      ':submit_id' => $data['submit_id']
     ]);
   }
 
