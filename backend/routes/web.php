@@ -88,8 +88,8 @@ $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'
 | Handle and record payment transactions.
 */
 
-$router->get('/payments', 'PaymentController@index'); // List all payments
-$router->post('/payments', 'PaymentController@store'); // Record a new payment
+//$router->get('/payments', 'PaymentController@index'); // List all payments
+//$router->post('/payments', 'PaymentController@store'); // Record a new payment
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +146,13 @@ $router->post(
     '/support-tickets/{ticketId}/messages',
     'SupportTicketController@postMessage'
 );
+
+
+/*
+for contact page
+*/
+$router->post("/contact", 'ContactController@sendEmail');
+$router->get("/list-message", 'ContactController@listMessages');
 
 
 

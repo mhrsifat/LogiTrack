@@ -46,6 +46,7 @@ const Contact = () => {
     try {
       const res = await fetch(`${BASE_URL}/contact`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });

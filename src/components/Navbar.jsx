@@ -53,7 +53,7 @@ const Navbar = () => {
       if (mounted && res.status) setUnreadCount(res.data.unread);
     };
     loadCount();
-    const interval = setInterval(loadCount, 3000);
+    const interval = setInterval(loadCount, 300000);
     return () => {
       mounted = false;
       clearInterval(interval);
@@ -103,6 +103,14 @@ const Navbar = () => {
                     className="hover:text-blue-500 p-2 rounded-lg"
                   >
                     Vehicles
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/admin/messages"
+                    className="hover:text-blue-500 p-2 rounded-lg"
+                  >
+                    Messages
                   </Link>
                 </li>
               </>
