@@ -95,4 +95,11 @@ class SupportTicket
       return $stmt->execute([':id' => $id, ':user_id' => $userId]);
     }
   }
+
+  public function updateStatus($id, $newStatus)
+  {
+    $stmt = $this->pdo->prepare("UPDATE {$this->table} SET status = :status, updated_at = NOW() WHERE id = :id");
+    return $stmt->execute([':status' => $newStatus, ':id' => $id]);
+
+  }
 }

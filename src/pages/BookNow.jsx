@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { createBooking } from "../api/BookingAPI";
 
-const BookingForm = () => {
+export default function BookingForm() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -17,6 +17,12 @@ const BookingForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Prevent selecting past dates by aligning to local timezone
+  const now = new Date();
+  const tzOffset = now.getTimezoneOffset() * 60000; // offset in ms
+  const localISO = new Date(now - tzOffset).toISOString().slice(0, 16);
+  const minDateTime = localISO;
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -32,6 +38,7 @@ const BookingForm = () => {
 
     if (!user) {
       alert("You must be logged in to book.");
+      setLoading(false);
       return;
     }
 
@@ -40,14 +47,18 @@ const BookingForm = () => {
       user_id: user.user_id,
     };
 
-    const res = await createBooking(bookingPayload);
-    if (res.status) {
-      navigate("/my-bookings");
-    } else {
-      setError(res.message || "Booking failed");
+    try {
+      const res = await createBooking(bookingPayload);
+      if (res.status) {
+        navigate("/my-bookings");
+      } else {
+        setError(res.message || "Booking failed");
+      }
+    } catch {
+      setError("Booking failed");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -83,6 +94,7 @@ const BookingForm = () => {
           onChange={handleChange}
           required
           className="w-full border px-3 py-2 rounded"
+          min={minDateTime}
         />
 
         <select
@@ -107,13 +119,11 @@ const BookingForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Submitting..." : "Request Booking"}
         </button>
       </form>
     </div>
   );
-};
-
-export default BookingForm;
+}

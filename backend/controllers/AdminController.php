@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../helpers/ResponseHelper.php';
+require_once __DIR__ . '/../core/ResponseHelper.php';
 require_once __DIR__ . '/../core/AccessControl.php';
 
 class AdminController

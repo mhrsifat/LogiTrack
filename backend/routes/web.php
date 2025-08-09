@@ -80,16 +80,6 @@ $router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOff
 $router->post('/booking-offers-driver', 'BookingController@sendOffer');
 $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'); // List bookings history for driver(own)
 
-/*
-|--------------------------------------------------------------------------
-| 🚀 Gig Management (Driver)
-|--------------------------------------------------------------------------
-| Post and view available transport gigs by drivers.
-*/
-
-$router->get('/gigs', 'GigController@index'); // List all gigs
-$router->get('/gigs/{id}', 'GigController@show'); // Show single gig
-$router->post('/gigs', 'GigController@store'); // Driver posts a new gig
 
 /*
 |--------------------------------------------------------------------------
@@ -108,8 +98,8 @@ $router->post('/payments', 'PaymentController@store'); // Record a new payment
 | Submit and fetch ratings for completed trips.
 */
 
-$router->get('/ratings', 'RatingController@index'); // List all ratings
-$router->post('/ratings', 'RatingController@store'); // Submit a new rating
+//$router->get('/ratings', 'RatingController@index'); // List all ratings
+//$router->post('/ratings', 'RatingController@store'); // Submit a new rating
 
 /*
 |--------------------------------------------------------------------------
@@ -117,10 +107,11 @@ $router->post('/ratings', 'RatingController@store'); // Submit a new rating
 |--------------------------------------------------------------------------
 | Notification system for users, drivers, and admins.
 */
-
-$router->get('/notifications', 'NotificationController@index'); // List notifications for user
-$router->put('/notifications/{id}/read', 'NotificationController@markAsRead'); // Mark as read
-
+$router->get('/notifications',                'NotificationController@index');         // list for current user
+$router->get('/notifications/unread-count',   'NotificationController@unreadCount');   // unread count
+$router->put('/notifications/{id}/read',      'NotificationController@markAsRead');    // mark one
+$router->put('/notifications/read-all',       'NotificationController@markAllAsRead'); // mark all
+$router->post('/notifications',               'NotificationController@create');        // send (admin only)
 /*
 |--------------------------------------------------------------------------
 | 📄 Vehicle Documents (Driver)
@@ -143,19 +134,20 @@ $router->get('/support-tickets', 'SupportTicketController@index'); // List suppo
 $router->get('/support-tickets/{id}', 'SupportTicketController@show'); // View ticket details
 $router->post('/support-tickets', 'SupportTicketController@store'); // Submit a new ticket
 $router->put('/support-tickets/{id}', 'SupportTicketController@update'); // Update a ticket
+$router->put('/support-tickets-admin/{id}', 'SupportTicketController@updateForAdmin'); // Update a ticket for admin
 $router->delete('/support-tickets/{id}', 'SupportTicketController@destroy'); // Delete a ticket
+// Fetch all messages for a ticket (GET /support-tickets/{ticketId}/messages)
+$router->get(
+    '/support-tickets/{ticketId}/messages',
+    'SupportTicketController@getMessages'
+);
+// Post a new message to a ticket (POST /support-tickets/{ticketId}/messages)
+$router->post(
+    '/support-tickets/{ticketId}/messages',
+    'SupportTicketController@postMessage'
+);
 
-/*
-|--------------------------------------------------------------------------
-| 💰 Price Rates (Admin Only)
-|--------------------------------------------------------------------------
-| Admin can configure price rates based on route/vehicle/distance/etc.
-*/
 
-$router->get('/price-rates', 'PriceRateController@index'); // List all rates
-$router->post('/price-rates', 'PriceRateController@store'); // Add new rate
-$router->put('/price-rates/{id}', 'PriceRateController@update'); // Update rate
-$router->delete('/price-rates/{id}', 'PriceRateController@destroy'); // Delete rate
 
 /*
 |--------------------------------------------------------------------------

@@ -2,12 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 import { BASE_URL } from "../config";
+import { fetchUnreadCount } from "../api/NotificationAPI";
+
 
 const Navbar = () => {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const dropdownRef = useRef(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const logout = async () => {
     await fetch(`${BASE_URL}/auth/logout`, {
@@ -41,6 +44,20 @@ const Navbar = () => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadCount = async () => {
+      const res = await fetchUnreadCount();
+      if (mounted && res.status) setUnreadCount(res.data.unread);
+    };
+    loadCount();
+    const interval = setInterval(loadCount, 3000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const isAdmin = user?.role === "admin";
@@ -86,14 +103,6 @@ const Navbar = () => {
                     className="hover:text-blue-500 p-2 rounded-lg"
                   >
                     Vehicles
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/admin/price-rates"
-                    className="hover:text-blue-500 p-2 rounded-lg"
-                  >
-                    Price Rates
                   </Link>
                 </li>
               </>
@@ -153,11 +162,13 @@ const Navbar = () => {
             )}
 
             <li>
-              <Link
-                to="/notifications"
-                className="hover:text-blue-500 p-2 rounded-lg"
-              >
+              <Link to="/notifications" className="flex items-center">
                 Notifications
+                {unreadCount > 0 && (
+                  <span className="ml-1 px-2 py-1 text-xs text-white bg-red-600 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
             </li>
             <li>
