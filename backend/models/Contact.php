@@ -38,4 +38,39 @@ class Contact
     $stmt = $this->pdo->query("SELECT * FROM {$this->table} ORDER BY id DESC");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
+
+  public function updateReadStatus($id, $is_read = 1)
+  {
+    $sql = "UPDATE {$this->table} SET is_read = :is_read WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+      ':is_read' => $is_read ? 1 : 0,
+      ':id'      => $id
+    ]);
+  }
+
+  public function find($id)
+  {
+    $sql = "SELECT * FROM {$this->table} WHERE id = :id LIMIT 1";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function deleteById($id)
+  {
+    $sql = "DELETE FROM {$this->table} WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([':id' => $id]);
+  }
+
+  public function markReplied($message_id, $replier_id)
+  {
+    $sql = "UPDATE `{$this->table}` SET replied_id = :replier_id, replied_at = NOW() WHERE id = :message_id LIMIT 1";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+      ':replier_id'  => $replier_id,
+      ':message_id'  => $message_id
+    ]);
+  }
 }

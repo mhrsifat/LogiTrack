@@ -6,16 +6,17 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "../api/NotificationAPI";
-import { UserContext } from "../contexts/UserContext"; // ✅ Make sure you have this
+import { UserContext } from "../contexts/UserContext";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { user } = useContext(UserContext); // ✅ Access logged-in user
+  const [processingMarkAll, setProcessingMarkAll] = useState(false);
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // 📦 Notifications এবং Unread Count লোড করে
+  // Load notifications and unread count
   const loadData = async () => {
     setLoading(true);
     try {
@@ -24,18 +25,14 @@ const Notifications = () => {
         fetchUnreadCount(),
       ]);
 
-      if (notifRes.status === false && notifRes.code === 401) {
+      // If backend indicates unauthorized, redirect to login
+      if (notifRes?.status === false && notifRes?.code === 401) {
         navigate("/login");
         return;
       }
 
-      if (notifRes.status) {
-        setNotifications(notifRes.data);
-      }
-
-      if (countRes.status) {
-        setUnreadCount(countRes.data.unread);
-      }
+      if (notifRes?.status) setNotifications(notifRes.data || []);
+      if (countRes?.status) setUnreadCount(countRes.data?.unread ?? 0);
     } catch (error) {
       console.error("Error loading notifications:", error);
     } finally {
@@ -43,37 +40,44 @@ const Notifications = () => {
     }
   };
 
-  // ✅ একক Notification read হিসেবে মার্ক করে
+  // Mark a single notification as read
   const handleMarkAsRead = async (id) => {
     try {
       const res = await markNotificationAsRead(id);
-      if (res.status) {
+      if (res?.status) {
         setNotifications((prev) =>
           prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
         );
         setUnreadCount((c) => Math.max(c - 1, 0));
+      } else {
+        console.warn("Failed to mark notification as read:", res?.message);
       }
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
-  // ✅ সব Notification read হিসেবে মার্ক করে
+  // Mark all notifications as read
   const handleMarkAllAsRead = async () => {
+    setProcessingMarkAll(true);
     try {
       const res = await markAllNotificationsAsRead();
-      if (res.status) {
+      if (res?.status) {
         setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
         setUnreadCount(0);
+      } else {
+        console.warn("Failed to mark all as read:", res?.message);
       }
     } catch (error) {
       console.error("Error marking all as read:", error);
+    } finally {
+      setProcessingMarkAll(false);
     }
   };
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 30000); // ⏲️ ৩০ সেকেন্ড পরপর রিফ্রেশ
+    const interval = setInterval(loadData, 30000); // refresh every 30s
     return () => clearInterval(interval);
   }, []);
 
@@ -87,7 +91,6 @@ const Notifications = () => {
         <h2 className="text-2xl font-semibold">Your Notifications</h2>
 
         <div className="flex gap-4 items-center">
-          {/* ✅ যদি ইউজার অ্যাডমিন হয় */}
           {user?.role === "admin" && (
             <button
               onClick={() => navigate("/admin/send-notification")}
@@ -100,9 +103,10 @@ const Notifications = () => {
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-sm text-blue-600 hover:underline"
+              disabled={processingMarkAll}
+              className="text-sm text-blue-600 hover:underline disabled:opacity-50"
             >
-              Mark all as read
+              {processingMarkAll ? "Processing..." : "Mark all as read"}
             </button>
           )}
         </div>

@@ -10,6 +10,7 @@ export default function AdminMessages() {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replySubject, setReplySubject] = useState('');
   const [replyBody, setReplyBody] = useState('');
+  const [sendingReply, setSendingReply] = useState(false); // NEW
   const [currentPage, setCurrentPage] = useState(1);
   const messagesPerPage = 10;
 
@@ -66,7 +67,7 @@ export default function AdminMessages() {
       if (data?.status) {
         setMessages(prev =>
           prev.map(m =>
-            m.id === msg.id ? { ...m, is_read: !m.is_read } : m
+            m.id === msg.id ? { ...m, is_read: m.is_read == 1 ? 0 : 1 } : m
           )
         );
       } else {
@@ -77,9 +78,22 @@ export default function AdminMessages() {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Delete this message?')) return;
-    setMessages(prev => prev.filter(m => m.id !== id));
+    try {
+      const res = await fetch(`${BASE_URL}/delete/message/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data?.status) {
+        setMessages(prev => prev.filter(m => m.id !== id));
+      } else {
+        alert(data?.message || 'Failed to delete');
+      }
+    } catch (err) {
+      alert('Error deleting message: ' + err.message);
+    }
   };
 
   const openReplyModal = (msg) => {
@@ -88,8 +102,10 @@ export default function AdminMessages() {
     setReplyBody('');
   };
 
+  // UPDATED sendReply: includes message_id, sending state, updates replied_id in UI
   const sendReply = async () => {
     if (!replyingTo) return;
+    setSendingReply(true);
     try {
       const res = await fetch(`${BASE_URL}/send-reply`, {
         method: 'POST',
@@ -98,21 +114,29 @@ export default function AdminMessages() {
         body: JSON.stringify({
           to: replyingTo.email,
           subject: replySubject,
-          message: replyBody
+          message: replyBody,
+          message_id: replyingTo.id // <-- IMPORTANT: send message_id
         })
       });
+
       const data = await res.json();
       if (data?.status) {
         alert('Reply sent successfully');
-        setMessages(prev => prev.map(m => 
-          m.id === replyingTo.id ? { ...m, replied: 1 } : m
+
+        // Update UI to show replied. Server will set replied_id; frontend sets marker for UI.
+        setMessages(prev => prev.map(m =>
+          m.id === replyingTo.id ? { ...m, replied_id: 1 } : m
         ));
         setReplyingTo(null);
+        setReplySubject('');
+        setReplyBody('');
       } else {
         alert(data?.message || 'Failed to send reply');
       }
     } catch (err) {
       alert('Error sending reply: ' + err.message);
+    } finally {
+      setSendingReply(false);
     }
   };
 
@@ -185,7 +209,7 @@ export default function AdminMessages() {
                             Replied
                           </span>
                         )}
-                        {msg.is_read && (
+                        {msg.is_read == 1 && (
                           <span className="ml-2 inline-block text-xs font-semibold bg-green-100 text-green-800 px-2 py-0.5 rounded">
                             Read
                           </span>
@@ -281,9 +305,10 @@ export default function AdminMessages() {
               </button>
               <button
                 onClick={sendReply}
-                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                disabled={sendingReply} // NEW: disable while sending
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               >
-                Send
+                {sendingReply ? 'Sending...' : 'Send'}
               </button>
             </div>
           </div>

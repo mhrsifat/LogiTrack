@@ -51,37 +51,48 @@ class BookingController
     return ResponseHelper::success($booking, "Booking found.");
   }
 
-  // User creates a booking request
   public function store()
-  {
+{
     AccessControl::requireRole(["user"]);
     $currentUser = AccessControl::getCurrentUser();
 
     if (!$currentUser) {
-      return ResponseHelper::unauthorized("User not logged in.");
+        return ResponseHelper::unauthorized("User not logged in.");
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
 
-    // Validation
+    // Validation for required fields
     if (
-      empty($data["pickup_address"]) ||
-      empty($data["drop_address"]) ||
-      empty($data["scheduled_time"])
+        empty($data["pickup_address"]) ||
+        empty($data["drop_address"]) ||
+        empty($data["scheduled_time"])
     ) {
-      return ResponseHelper::validationError("pickup_address, drop_address, and scheduled_time are required.");
+        return ResponseHelper::validationError("pickup_address, drop_address, and scheduled_time are required.");
+    }
+
+    // Validate scheduled_time is not in the past
+    $scheduledTimestamp = strtotime(str_replace('T', ' ', $data["scheduled_time"]));
+    $currentTimestamp = time();
+
+    if ($scheduledTimestamp === false) {
+        return ResponseHelper::validationError([], "Invalid scheduled_time format.");
+    }
+
+    if ($scheduledTimestamp < $currentTimestamp) {
+        return ResponseHelper::validationError([], "Scheduled Time cannot be in the past.");
     }
 
     $data["user_id"] = $currentUser["id"];
     $data["status"] = "pending";
-    $data["vehicle_id"] = $data["vehicle_id"] ?? null; // optional
+    $data["vehicle_id"] = $data["vehicle_id"] ?? null;
 
     if ($this->bookingModel->create($data)) {
-      return ResponseHelper::success([], "Booking request created.");
+        return ResponseHelper::success([], "Booking request created.");
     } else {
-      return ResponseHelper::error("Failed to create booking.");
+        return ResponseHelper::error("Failed to create booking.");
     }
-  }
+}
 
   // Update booking info
   public function update($id)

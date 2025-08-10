@@ -152,7 +152,11 @@ $router->post(
 for contact page
 */
 $router->post("/contact", 'ContactController@sendEmail');
+$router->post("/send-reply", 'ContactController@sendReply');
 $router->get("/list-message", 'ContactController@listMessages');
+$router->get("/message-mark-as-unread/{id}", 'ContactController@markUnread');
+$router->get("/message-mark-as-read/{id}", 'ContactController@markRead');
+$router->delete("/delete/message/{id}", 'ContactController@deleteMessage');
 
 
 

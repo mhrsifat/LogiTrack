@@ -79,17 +79,36 @@ class NotificationController
         }
 
         $body = json_decode(file_get_contents('php://input'), true);
-        $ok   = $this->model->create(
-            $body['user_id'],
-            $body['type'] ?? 'info',
-            $body['title'],
-            $body['message']
-        );
+        $id = $body['user_id'];
+        $type = $body['type'] ?? 'info';
+        $title = $body['title'];
+        $message = $body['message'];
 
-        if ($ok) {
-            return ResponseHelper::success("Notification sent.");
+        if ($type == "email") {
+            require_once __DIR__ . '/../models/User.php';
+            $userModel = new User();
+            $user = $userModel->findById($id);
+            if (!$user) {
+                return ResponseHelper::notFound("User not found.");
+            }
+            $userEmail = $user['email'];
+            require_once __DIR__ . '/../core/Mailer.php';
+            if (Mailer::send($userEmail, $title, $message)) {
+                $ok   = $this->model->create($id, $type, $title, $message);
+
+                if ($ok) {
+                    return ResponseHelper::success("Email notification sent.");
+                } else {
+                    return ResponseHelper::error("Email send but Failed to create notification record.");
+                }
+            } else {
+                return ResponseHelper::error("Failed to send email.");
+            }
+        } else {
+            $ok = $this->model->create($id, $type, $title, $message);
+            if ($ok) {
+                return ResponseHelper::success("Notification created.");
+            }
         }
-
-        return ResponseHelper::error("Failed to send notification.");
     }
 }

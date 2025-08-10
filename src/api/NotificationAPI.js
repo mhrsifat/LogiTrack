@@ -71,3 +71,26 @@ export const sendNotification = async (payload) => {
     return { status: false };
   }
 };
+
+
+export const getUsers = async () => {
+  try {
+    const res = await fetch(BASE_URL + "/users", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+    return { status: false, data: [] };
+  }
+};
+
