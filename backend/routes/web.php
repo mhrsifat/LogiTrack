@@ -37,7 +37,7 @@ $router->post('/change-email', 'AuthController@updateemail'); // Change user's e
 */
 
 $router->get('/users', 'UserController@index'); // List all users
-$router->get('/users/{id}', 'UserController@show'); // Show single user info
+//$router->get('/users/{id}', 'UserController@show'); // Show single user info
 $router->put('/users/{id}', 'UserController@update'); // Update user info
 $router->delete('/users/{id}', 'UserController@destroy'); // Delete user
 
@@ -48,12 +48,12 @@ $router->delete('/users/{id}', 'UserController@destroy'); // Delete user
 | Admin routes to manage vehicles in the system.
 */
 
-$router->get('/vehicles', 'VehicleController@index'); // List all vehicles
-$router->get('/vehicles-exist', 'VehicleController@vehicleExist'); // List if vehicles exist for driver
-$router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle
-$router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle
+$router->get('/vehicles', 'VehicleController@index'); // List all vehicles \\
+$router->get('/vehicles-exist', 'VehicleController@vehicleExist'); // List if vehicles exist for driver \\
+$router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle \\
+$router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle 
 $router->post('/vehicle-documents', 'VehicleDocumentController@handleSubmitDocument'); // Create new vehicle
-$router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
+//$router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
 $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicle
 
 /*
