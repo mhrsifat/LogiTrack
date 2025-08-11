@@ -53,7 +53,7 @@ $router->get('/vehicles-exist', 'VehicleController@vehicleExist'); // List if ve
 $router->get('/vehicles/{id}', 'VehicleController@show'); // Show specific vehicle \\
 $router->get('/vehicles-driver', 'VehicleController@showDriverVehicle'); // Show specific vehicle 
 $router->post('/vehicle-documents', 'VehicleDocumentController@handleSubmitDocument'); // Create new vehicle
-//$router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
+$router->post('/vehicles/{id}', 'VehicleController@update'); // Update vehicle info
 $router->delete('/vehicles/{id}', 'VehicleController@destroy'); // Delete vehicle
 
 /*
@@ -73,11 +73,11 @@ $router->delete('/bookings/{id}', 'BookingController@destroy'); // Cancel bookin
 // Offers (sent by driver)
 $router->post('/booking-offers', 'BookingOfferController@store'); // Driver sends offer
 $router->get('/booking-offers/{booking_id}', 'BookingOfferController@getOffersByBooking'); // List all offers for a booking
-$router->post('/booking-offers/{id}/accept', 'BookingOfferController@acceptOffer'); // User accepts one offer
-$router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
+//$router->post('/booking-offers/{id}/accept', 'BookingOfferController@acceptOffer'); // User accepts one offer
+//$router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
 
 // Booking offers (Driver sends offers)
-$router->post('/booking-offers-driver', 'BookingController@sendOffer');
+//$router->post('/booking-offers-driver', 'BookingController@sendOffer');
 $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'); // List bookings history for driver(own)
 
 
@@ -119,8 +119,8 @@ $router->post('/notifications',               'NotificationController@create'); 
 | Upload, update, and delete vehicle-related documents.
 */
 
-$router->get('/vehicle-documents', 'VehicleDocumentController@index'); // List documents
-$router->put('/vehicle-documents/{id}', 'VehicleDocumentController@update'); // Update document
+//$router->get('/vehicle-documents', 'VehicleDocumentController@index'); // List documents
+//$router->put('/vehicle-documents/{id}', 'VehicleDocumentController@update'); // Update document
 $router->delete('/vehicle-documents/{id}', 'VehicleDocumentController@destroy'); // Delete doc
 
 /*
