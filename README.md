@@ -25,3 +25,4 @@
 - API Communication: Axios with JWT/session authentication
 
 ---
+
