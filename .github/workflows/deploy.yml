@@ -36,5 +36,6 @@ jobs:
             git pull origin main
             npm install
             npm run build
-            rm -rf /home/mhrsifa1/logitrack.mhrsifat.xyz/*
-            cp -r dist/* /home/mhrsifa1/logitrack.mhrsifat.xyz/
+            rm -rf /home/mhrsifa1/lt.mhrsifat.xyz/*
+            cp -r dist/* /home/mhrsifa1/lt.mhrsifat.xyz/
+            
