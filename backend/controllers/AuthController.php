@@ -85,65 +85,64 @@ class AuthController
   }
 
   public function register()
-  {
+{
     $data = json_decode(file_get_contents("php://input"), true);
 
+    // Validation for missing fields
     if (
-      !isset(
-        $data["name"],
-        $data["username"],
-        $data["email"],
-        $data["phone"],
-        $data["password"]
-      )
+        !isset(
+            $data["name"],
+            $data["username"],
+            $data["email"],
+            $data["phone"],
+            $data["password"]
+        )
     ) {
-      ResponseHelper::validationError([
-        "name" => "Name is required",
-        "username" => "Username is required",
-        "email" => "Email is required",
-        "phone" => "Phone is required",
-        "password" => "Password is required",
-      ]);
+        ResponseHelper::validationError([
+            "name" => "Name is required",
+            "username" => "Username is required",
+            "email" => "Email is required",
+            "phone" => "Phone is required",
+            "password" => "Password is required",
+        ]);
     }
 
+    // Sanitize and prepare values
     $name = htmlspecialchars(trim($data["name"]));
     $username = htmlspecialchars(trim($data["username"]));
     $email = htmlspecialchars(trim($data["email"]));
     $phone = htmlspecialchars(trim($data["phone"]));
     $password = password_hash($data["password"], PASSWORD_BCRYPT);
 
-    if ($this->userModel->findByEmailOrPhone($data["email"], $data["phone"])) {
-      ResponseHelper::error("Email or Phone already in use", 409);
+    // Check for existing email or phone
+    if ($this->userModel->findByEmailOrPhone($email, $phone)) {
+        ResponseHelper::error("Email or Phone already in use", 409);
     }
 
-    $user = $this->userModel->create(
-      $name,
-      $username,
-      $email,
-      $phone,
-      $password
-    );
+    // Create user (now returns full record including token)
+    $user = $this->userModel->create($name, $username, $email, $phone, $password);
 
     if (!$user) {
-      ResponseHelper::error("Registration failed", 500);
+        ResponseHelper::error("Registration failed", 500);
     }
 
-    $verifyUrl =
-      $_ENV["Frontend_URL"] . "/verify-email?token=" . $user["token"];
+    // Build verification URL
+    $verifyUrl = $_ENV["Frontend_URL"] . "/verify-email?token=" . $user["token"];
     $subject = "Verify your email address";
-    $message = "Hi $name,\n\nPlease verify your email by clicking this link: $verifyUrl\n\nThank you.";
+    $message = "Hi {$user['name']},\n\nPlease verify your email by clicking this link: $verifyUrl\n\nThank you.";
 
-    Mailer::send($email, $subject, nl2br($message));
+    // Send verification email
+    Mailer::send($user["email"], $subject, nl2br($message));
 
-    ResponseHelper::success(
-      [
-        "user_id" => $user["user_id"],
-        "verify_url" => $verifyUrl,
-      ],
-      "User registered. Please verify your email.",
-      201
-    );
-  }
+    // Start user session
+    $_SESSION["loggedIn"] = true;
+    $_SESSION["userId"] = $user["id"];
+    $_SESSION["role"] = $user["role"];
+
+    // Success response
+    ResponseHelper::success([], "User registered. Please verify your email.", 201);
+}
+
 
   public function verifyEmail()
   {
@@ -286,7 +285,7 @@ class AuthController
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
-    $newEmail = trim($data["email"] ?? "");
+    $newEmail = trim($data["new_email"] ?? "");
 
     if (!$newEmail || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
       ResponseHelper::validationError([
@@ -314,7 +313,7 @@ class AuthController
     }
 
     // ✅ Generate new verification token
-    $token = bin2hex(random_bytes(32));
+    $token = random_int(100000, 999999);
     $expires = date("Y-m-d H:i:s", time() + 3600); // 1 hour expiry
 
     // 🛠️ Update the user's email, token, and expiry

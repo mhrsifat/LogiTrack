@@ -13,7 +13,8 @@ class User
     $this->pdo = connectDB();
   }
 
-  public static function connectDatabase() {
+  public static function connectDatabase()
+  {
     return connectDB();
   }
 
@@ -41,21 +42,25 @@ class User
 
     $stmt = $this->pdo->prepare($sql);
     $ok = $stmt->execute([$name, $username, $email, $phone, $password, $token, date("Y-m-d H:i:s", strtotime("+5 minutes"))]);
-    $this->pdo->commit();
+
     if (!$ok) {
       $this->pdo->rollBack();
       return null;
     }
 
-    return [
-      "user_id" => (int) $this->pdo->lastInsertId(),
-      "token" => $token,
-    ];
+    $id = (int) $this->pdo->lastInsertId();
+    $this->pdo->commit();
+
+    $user = $this->findById($id);
+    $user['token'] = $token;
+
+    return $user;
   }
+
 
   public function findById($id)
   {
-    $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
@@ -75,7 +80,7 @@ class User
     return $stmt->fetch(PDO::FETCH_ASSOC);
   }
 
-   public function selectVerifyEmail($token)
+  public function selectVerifyEmail($token)
   {
     $stmt = $this->pdo->prepare(
       "SELECT * FROM users WHERE email_verified = 0 AND email_verification_token = ?"
@@ -109,7 +114,7 @@ class User
   public function updateEmailAndToken($userId, $email, $token, $expires)
   {
     $stmt = $this->pdo->prepare(
-      "UPDATE users SET email = ?, email_verify_token = ?, email_verify_expires = ? WHERE id = ?"
+      "UPDATE users SET email = ?, email_verification_token = ?, email_verification_expires = ? WHERE id = ?"
     );
     return $stmt->execute([$email, $token, $expires, $userId]);
   }
@@ -157,43 +162,43 @@ class User
   //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   public static function all()
-{
+  {
     $db = connectDB();
     $stmt = $db->prepare("SELECT id, name, email, phone FROM users");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+  }
 
-public static function find($id)
-{
+  public static function find($id)
+  {
     $db = connectDB();
     $stmt = $db->prepare("SELECT id, name, email, phone FROM users WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+  }
 
-public static function update($id, $data)
-{
+  public static function update($id, $data)
+  {
     $db = connectDB();
 
     $fields = [];
     $params = [];
 
     if (isset($data['name'])) {
-        $fields[] = 'name = ?';
-        $params[] = $data['name'];
+      $fields[] = 'name = ?';
+      $params[] = $data['name'];
     }
     if (isset($data['email'])) {
-        $fields[] = 'email = ?';
-        $params[] = $data['email'];
+      $fields[] = 'email = ?';
+      $params[] = $data['email'];
     }
     if (isset($data['phone'])) {
-        $fields[] = 'phone = ?';
-        $params[] = $data['phone'];
+      $fields[] = 'phone = ?';
+      $params[] = $data['phone'];
     }
 
     if (empty($fields)) {
-        return false;
+      return false;
     }
 
     $params[] = $id;
@@ -201,31 +206,31 @@ public static function update($id, $data)
     $stmt = $db->prepare($sql);
 
     return $stmt->execute($params);
-}
+  }
 
-public static function delete($id)
-{
+  public static function delete($id)
+  {
     $db = connectDB();
     $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
     return $stmt->execute([$id]);
-}
+  }
 
-public function emailExists($email)
-{
+  public function emailExists($email)
+  {
     $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE email = :email LIMIT 1");
     $stmt->execute(['email' => $email]);
     return $stmt->fetch() !== false;
-}
+  }
 
-public function usernameExists($username)
-{
+  public function usernameExists($username)
+  {
     $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE username = :username LIMIT 1");
     $stmt->execute(['username' => $username]);
     return $stmt->fetch() !== false;
-}
+  }
 
-public function createdriver($data)
-{
+  public function createdriver($data)
+  {
     $stmt = $this->pdo->prepare("
         INSERT INTO {$this->table} (
             name, 
@@ -255,45 +260,44 @@ public function createdriver($data)
     ");
 
     $success = $stmt->execute([
-        ':name'                      => $data['name'],
-        ':username'                  => $data['username'],
-        ':email'                     => $data['email'],
-        ':phone'                     => $data['phone'],
-        ':password'                  => $data['password'],
-        ':role'                      => $data['role'],
-        ':email_verification_token' => $data['email_verification_token'],
-        ':email_verification_expires' => $data['email_verification_expires'],
-        ':email_verified'            => $data['email_verified'],
-        ':status'                    => $data['status'],
-        ':created_at'                => $data['created_at'],
+      ':name'                      => $data['name'],
+      ':username'                  => $data['username'],
+      ':email'                     => $data['email'],
+      ':phone'                     => $data['phone'],
+      ':password'                  => $data['password'],
+      ':role'                      => $data['role'],
+      ':email_verification_token' => $data['email_verification_token'],
+      ':email_verification_expires' => $data['email_verification_expires'],
+      ':email_verified'            => $data['email_verified'],
+      ':status'                    => $data['status'],
+      ':created_at'                => $data['created_at'],
     ]);
 
     if ($success) {
-        return $this->pdo->lastInsertId();
+      return $this->pdo->lastInsertId();
     }
 
     return false;
-}
+  }
 
-    public function existsByUsername($username)
-    {
-        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE username = :username LIMIT 1");
-        $stmt->execute([':username' => $username]);
-        return $stmt->fetch() ? true : false;
-    }
+  public function existsByUsername($username)
+  {
+    $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE username = :username LIMIT 1");
+    $stmt->execute([':username' => $username]);
+    return $stmt->fetch() ? true : false;
+  }
 
-    public function existsByEmail($email)
-    {
-        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $email]);
-        return $stmt->fetch() ? true : false;
-    }
+  public function existsByEmail($email)
+  {
+    $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE email = :email LIMIT 1");
+    $stmt->execute([':email' => $email]);
+    return $stmt->fetch() ? true : false;
+  }
 
-    public function existsByPhone($phone)
-    {
-        $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE phone = :phone LIMIT 1");
-        $stmt->execute([':phone' => $phone]);
-        return $stmt->fetch() ? true : false;
-    }
-
+  public function existsByPhone($phone)
+  {
+    $stmt = $this->pdo->prepare("SELECT id FROM {$this->table} WHERE phone = :phone LIMIT 1");
+    $stmt->execute([':phone' => $phone]);
+    return $stmt->fetch() ? true : false;
+  }
 }

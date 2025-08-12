@@ -4,8 +4,9 @@ import { BASE_URL } from "../config.js";
 import ErrorBox from "../components/ErrorBox";
 import { useUser } from "../contexts/UserContext";
 import Successfull from "../components/Successfull";
+import { motion, AnimatePresence } from "framer-motion"; // ✨ Added motion
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const EmailVerify = () => {
   const { setUser } = useUser();
@@ -21,7 +22,7 @@ const EmailVerify = () => {
   const loginfunction = () => {
     fetch(BASE_URL + "/autologin", {
       method: "POST",
-      credentials: "include", 
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
@@ -58,7 +59,7 @@ const EmailVerify = () => {
         setError("Session expired. Please log in again.");
       } else if (data.status) {
         setMessage("✅ Email verified successfully. Redirecting to profile...");
-        setToken(""); 
+        setToken("");
         loginfunction();
         timeoutRef.current = setTimeout(() => navigate("/profile"), 2000);
       } else {
@@ -107,49 +108,97 @@ const EmailVerify = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-teal-100">
+      <motion.form
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
+        className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-sm"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-teal-700">
+        <motion.h2
+          className="text-2xl font-semibold mb-4 text-center text-teal-700"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           Email Verification
-        </h2>
+        </motion.h2>
 
-        {error && <ErrorBox msg={error} />}
-        {message && <Successfull msg={message} />}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ErrorBox msg={error} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {message && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Successfull msg={message} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Email Change Input */}
-        {showEmailInput && (
-          <>
-            <label htmlFor="email" className="block mb-1 text-teal-900">
-              New Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full mb-4 px-3 py-2 border border-teal-900 rounded"
-              required
-              disabled={loading || !!message}
-            />
-            <button
-              type="button"
-              onClick={handleEmailChange}
-              className="w-full mb-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded"
-              disabled={loading || !!message}
+        <AnimatePresence>
+          {showEmailInput && (
+            <motion.div
+              key="emailChange"
+              initial={{ opacity: 0, scaleY: 0 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              exit={{ opacity: 0, scaleY: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              style={{ originY: 0 }} // scale from top
             >
-              {loading ? "Updating..." : "Update Email"}
-            </button>
-          </>
-        )}
+              <label htmlFor="email" className="block mb-1 text-teal-900">
+                New Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full mb-4 px-3 py-2 border border-teal-900 rounded"
+                required
+                disabled={loading || !!message}
+              />
+              <button
+                type="button"
+                onClick={handleEmailChange}
+                className="w-full mb-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded"
+                disabled={loading || !!message}
+              >
+                {loading ? "Updating..." : "Update Email"}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Token Input */}
-        <label htmlFor="token" className="block mb-1 text-teal-900">
+        <motion.label
+          htmlFor="token"
+          className="block mb-1 text-teal-900"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           Verification Token
-        </label>
-        <input
+        </motion.label>
+        <motion.input
           type="text"
           id="token"
           value={token}
@@ -157,17 +206,27 @@ const EmailVerify = () => {
           className="w-full mb-4 px-3 py-2 border border-teal-900 rounded"
           required
           disabled={loading || showEmailInput || !!message}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
         />
 
-        <button
+        <motion.button
           type="submit"
           className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded"
           disabled={loading || !!message}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.02 }}
         >
           {loading ? "Verifying..." : "Verify Email"}
-        </button>
+        </motion.button>
 
-        <p className="text-sm mt-4 text-center">
+        <motion.p
+          className="text-sm mt-4 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
           Want to change your email?{" "}
           <button
             type="button"
@@ -177,8 +236,8 @@ const EmailVerify = () => {
           >
             {showEmailInput ? "Cancel" : "Change Email"}
           </button>
-        </p>
-      </form>
+        </motion.p>
+      </motion.form>
     </div>
   );
 };
