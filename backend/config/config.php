@@ -1,12 +1,14 @@
 <?php
 
 if (!function_exists('str_contains')) {
-    function str_contains(string $haystack, string $needle): bool {
+    function str_contains(string $haystack, string $needle): bool
+    {
         return $needle !== '' && strpos($haystack, $needle) !== false;
     }
 }
 
-function loadEnvFile(array $paths) {
+function loadEnvFile(array $paths)
+{
     foreach ($paths as $path) {
         if (file_exists($path)) {
             $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -33,7 +35,7 @@ function loadEnvFile(array $paths) {
 }
 
 loadEnvFile([
-    __DIR__ . '/../.env.development',
     __DIR__ . '/../.env.production',
+    __DIR__ . '/../.env.development',
     __DIR__ . '/../.env',
 ]);
