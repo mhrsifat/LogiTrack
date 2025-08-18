@@ -162,7 +162,7 @@ const EmailVerify = () => {
               animate={{ opacity: 1, scaleY: 1 }}
               exit={{ opacity: 0, scaleY: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              style={{ originY: 0 }} // scale from top
+              style={{ originY: 0 }}
             >
               <label htmlFor="email" className="block mb-1 text-teal-900">
                 New Email

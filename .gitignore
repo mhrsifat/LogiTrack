@@ -27,3 +27,4 @@ ztest
 backend/Plan
 backend/cornjob.php
 reference
+.htaccess

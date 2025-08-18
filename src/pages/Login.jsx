@@ -52,7 +52,8 @@ const Login = () => {
       });
 
       const data = await res.json();
-      if (data.status) {
+      console.log(data)
+      if (data.data.length	!= 0) {
         setSuccess("Login Successful. Redirecting to home...");
         setUser(data.data);
       } else {
