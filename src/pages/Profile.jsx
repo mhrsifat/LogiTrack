@@ -14,9 +14,9 @@ const Profile = () => {
   });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [hasVehicle, setHasVehicle] = useState(null); // null = loading, false = no vehicle, true = has one
+  const [hasVehicle, setHasVehicle] = useState(null); 
 
-  // Initialize form data from user
+  
   useEffect(() => {
     if (user) {
       setFormData({

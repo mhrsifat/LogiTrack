@@ -29,23 +29,31 @@ class BookingOfferController
       $data['message'] ?? null
     ]);
 
-    return ResponseHelper::success("Offer submitted successfully.");
+    return ResponseHelper::success([], "Offer submitted successfully.");
   }
 
   // 📦 Get all offers for a specific booking
-  public function getOffersByBooking($bookingId)
-  {
+ public function getOffersByBooking($bookingId)
+{
     $stmt = $this->pdo->prepare("
-      SELECT bo.*, u.name AS driver_name, u.phone, u.email
-      FROM booking_offers bo
-      JOIN users u ON bo.driver_id = u.id
-      WHERE bo.booking_id = ?
+        SELECT bo.*, u.name AS driver_name, u.phone, u.email
+        FROM booking_offers bo
+        JOIN users u ON bo.driver_id = u.id
+        INNER JOIN (
+            SELECT driver_id, MAX(created_at) AS latest_offer
+            FROM booking_offers
+            WHERE booking_id = ?
+            GROUP BY driver_id
+        ) latest ON bo.driver_id = latest.driver_id AND bo.created_at = latest.latest_offer
+        WHERE bo.booking_id = ?;
     ");
-    $stmt->execute([$bookingId]);
+
+    $stmt->execute([$bookingId, $bookingId]);
     $offers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    return ResponseHelper::success("Offers retrieved.", $offers);
-  }
+    return ResponseHelper::success($offers, "Offers retrieved.");
+}
+
 
   // ✅ User accepts an offer (confirm booking)
   public function acceptOffer($offerId)
@@ -73,7 +81,7 @@ class BookingOfferController
     $stmt = $this->pdo->prepare("UPDATE booking_offers SET status = 'declined' WHERE booking_id = ? AND id != ?");
     $stmt->execute([$bookingId, $offerId]);
 
-    return ResponseHelper::success("Offer accepted. Booking confirmed.");
+    return ResponseHelper::success([], "Offer accepted. Booking confirmed.");
   }
 
   // ❌ User declines a specific offer (optional)
@@ -82,6 +90,6 @@ class BookingOfferController
     $stmt = $this->pdo->prepare("UPDATE booking_offers SET status = 'declined' WHERE id = ?");
     $stmt->execute([$offerId]);
 
-    return ResponseHelper::success("Offer declined.");
+    return ResponseHelper::success([], "Offer declined.");
   }
 }

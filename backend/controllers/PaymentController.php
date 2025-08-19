@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Payment.php';
-require_once __DIR__ . '/../helpers/ResponseHelper.php';
+require_once __DIR__ . '/../core/ResponseHelper.php';
 
 class PaymentController
 {
@@ -22,6 +22,7 @@ class PaymentController
     // Record a new payment
     public function store()
     {
+
         $data = json_decode(file_get_contents('php://input'), true);
 
         // Validate required fields
@@ -42,7 +43,10 @@ class PaymentController
         $success = $this->paymentModel->createPayment($data);
 
         if ($success) {
-            ResponseHelper::success("Payment recorded successfully", 201);
+            require_once __DIR__ . '/../models/Booking.php';
+            $bookingModel = new Booking();
+            $bookingModel->selected_offer_id($success, $data['booking_id']);
+            ResponseHelper::success([], "Payment recorded successfully. Wait for Confirmation!", 201);
         } else {
             ResponseHelper::error("Failed to record payment", 500);
         }

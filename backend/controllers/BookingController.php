@@ -52,23 +52,23 @@ class BookingController
   }
 
   public function store()
-{
+  {
     AccessControl::requireRole(["user"]);
     $currentUser = AccessControl::getCurrentUser();
 
     if (!$currentUser) {
-        return ResponseHelper::unauthorized("User not logged in.");
+      return ResponseHelper::unauthorized("User not logged in.");
     }
 
     $data = json_decode(file_get_contents("php://input"), true);
 
     // Validation for required fields
     if (
-        empty($data["pickup_address"]) ||
-        empty($data["drop_address"]) ||
-        empty($data["scheduled_time"])
+      empty($data["pickup_address"]) ||
+      empty($data["drop_address"]) ||
+      empty($data["scheduled_time"])
     ) {
-        return ResponseHelper::validationError("pickup_address, drop_address, and scheduled_time are required.");
+      return ResponseHelper::validationError("pickup_address, drop_address, and scheduled_time are required.");
     }
 
     // Validate scheduled_time is not in the past
@@ -76,11 +76,11 @@ class BookingController
     $currentTimestamp = time();
 
     if ($scheduledTimestamp === false) {
-        return ResponseHelper::validationError([], "Invalid scheduled_time format.");
+      return ResponseHelper::validationError([], "Invalid scheduled_time format.");
     }
 
     if ($scheduledTimestamp < $currentTimestamp) {
-        return ResponseHelper::validationError([], "Scheduled Time cannot be in the past.");
+      return ResponseHelper::validationError([], "Scheduled Time cannot be in the past.");
     }
 
     $data["user_id"] = $currentUser["id"];
@@ -88,38 +88,50 @@ class BookingController
     $data["vehicle_id"] = $data["vehicle_id"] ?? null;
 
     if ($this->bookingModel->create($data)) {
-        return ResponseHelper::success([], "Booking request created.");
+      return ResponseHelper::success([], "Booking request created.");
     } else {
-        return ResponseHelper::error("Failed to create booking.");
+      return ResponseHelper::error("Failed to create booking.");
     }
-}
+  }
 
   // Update booking info
-  public function update($id)
+  public function updateOffer()
   {
-    AccessControl::requireRole(["admin", "user"]);
+    AccessControl::requireRole(["driver"]);
     $currentUser = AccessControl::getCurrentUser();
 
     if (!$currentUser) {
-      return ResponseHelper::unauthorized("User not logged in.");
+      return ResponseHelper::unauthorized("Driver not logged in.");
     }
 
-    $booking = $this->bookingModel->getById($id);
+
+    $data = json_decode(file_get_contents("php://input"), true);
+    $bookingId = $data['booking_id'];
+
+    $booking = $this->bookingModel->getById($bookingId);
     if (!$booking) {
       return ResponseHelper::notFound("Booking not found.");
     }
 
-    // Only owner user or admin can update
-    if ($currentUser["role"] === "user" && $booking["user_id"] !== $currentUser["id"]) {
-      return ResponseHelper::forbidden("You don't have permission to update this booking.");
+    if ($booking["status"] !== "pending") {
+      return ResponseHelper::badRequest("Cannot offer on a non-pending booking.");
     }
 
-    $data = json_decode(file_get_contents("php://input"), true);
+    if (empty($data["proposed_price"]) || !is_numeric($data["proposed_price"])) {
+      return ResponseHelper::validationError("Valid proposed_price is required.");
+    }
 
-    if ($this->bookingModel->update($id, $data)) {
-      return ResponseHelper::success([], "Booking updated.");
+    $success = $this->bookingModel->updateOffer(
+      $bookingId,
+      $currentUser["id"],
+      $data["proposed_price"],
+      $data["message"] ?? null
+    );
+
+    if ($success) {
+      return ResponseHelper::success([], "Offer sent successfully.");
     } else {
-      return ResponseHelper::error("Failed to update booking.");
+      return ResponseHelper::error("Failed to send offer.");
     }
   }
 
@@ -199,20 +211,18 @@ class BookingController
   }
 
   public function indexBookingHistory()
-    {
-        AccessControl::requireRole(['driver']);
-        $currentUser = AccessControl::getCurrentUser();
+  {
+    AccessControl::requireRole(['driver']);
+    $currentUser = AccessControl::getCurrentUser();
 
-        if (!$currentUser) {
-            return ResponseHelper::unauthorized("User not logged in.");
-        }
-
-        $driverId = $currentUser['id'];
-
-        $offers = $this->bookingModel->getOffersByDriver($driverId);
-
-        return ResponseHelper::success($offers, "Driver's booking offers fetched.");
+    if (!$currentUser) {
+      return ResponseHelper::unauthorized("User not logged in.");
     }
 
- 
+    $driverId = $currentUser['id'];
+
+    $offers = $this->bookingModel->getOffersByDriver($driverId);
+
+    return ResponseHelper::success($offers, "Driver's booking offers fetched.");
+  }
 }

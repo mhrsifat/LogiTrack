@@ -31,7 +31,7 @@ class Payment
 
     $stmt = $this->pdo->prepare($sql);
 
-    return $stmt->execute([
+    $stmt->execute([
       ':booking_id'     => $data['booking_id'],
       ':amount'         => $data['amount'],
       ':method'         => $data['method'],
@@ -39,5 +39,6 @@ class Payment
       ':transaction_id' => $data['transaction_id'] ?? null,
       ':paid_at'        => $data['paid_at'] ?? null,
     ]);
+    return $this->pdo->lastInsertId();
   }
 }

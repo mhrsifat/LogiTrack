@@ -77,8 +77,10 @@ $router->get('/booking-offers/{booking_id}', 'BookingOfferController@getOffersBy
 //$router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
 
 // Booking offers (Driver sends offers)
-//$router->post('/booking-offers-driver', 'BookingController@sendOffer');
+$router->post('/booking-offers-driver', 'BookingController@sendOffer');
+$router->post('/booking-offers-driver-update', 'BookingController@updateOffer'); // Update bookings
 $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'); // List bookings history for driver(own)
+
 
 
 /*
@@ -89,7 +91,7 @@ $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'
 */
 
 //$router->get('/payments', 'PaymentController@index'); // List all payments
-//$router->post('/payments', 'PaymentController@store'); // Record a new payment
+$router->post('/payments', 'PaymentController@store'); // Record a new payment
 
 /*
 |--------------------------------------------------------------------------

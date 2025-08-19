@@ -85,12 +85,12 @@ const BookingRequestList = () => {
       ) : (
         requests.map((request) => (
           <div key={request.id} className="border p-3 rounded shadow mb-3">
-            <p><strong>ID:</strong> {request.id}</p>
             <p><strong>Pickup:</strong> {request.pickup_address}</p>
             <p><strong>Drop:</strong> {request.drop_address}</p>
             <p><strong>Scheduled:</strong> {new Date(request.scheduled_time).toLocaleString()}</p>
             <p><strong>Vehicle:</strong> {request.vehicle_type}</p>
             <p><strong>Status:</strong> {request.status}</p>
+            <small><p><strong>created at:</strong> {new Date(request.created_at).toLocaleString()}</p></small>
 
             {isDriver && (
               <button

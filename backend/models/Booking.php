@@ -21,7 +21,11 @@ class Booking
   // 🔹 User: own bookings
   public function getByUser($userId)
   {
-    $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE user_id = ? ORDER BY created_at DESC");
+    $stmt = $this->pdo->prepare("SELECT * 
+        FROM {$this->table} 
+        WHERE user_id = ? 
+          AND scheduled_time > NOW() 
+        ORDER BY created_at DESC");
     $stmt->execute([$userId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -31,8 +35,8 @@ class Booking
   {
     $stmt = $this->pdo->prepare("
       SELECT * FROM {$this->table}
-      WHERE status = 'pending' AND selected_offer_id IS NULL
-      ORDER BY scheduled_time ASC
+      WHERE status = 'pending' AND scheduled_time > NOW() AND selected_offer_id IS NULL
+      ORDER BY created_at DESC
     ");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -139,7 +143,7 @@ class Booking
 
   public function getOffersByDriver($driverId)
 {
-    $sql = "SELECT o.*, b.pickup_address, b.drop_address, b.scheduled_time, b.status AS booking_status
+    $sql = "SELECT o.*, b.pickup_address, b.drop_address, b.scheduled_time, b.vehicle_type, b.status AS booking_status
             FROM booking_offers o
             JOIN bookings b ON o.booking_id = b.id
             WHERE o.driver_id = ?
@@ -149,5 +153,28 @@ class Booking
     $stmt->execute([$driverId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+function selected_offer_id(int $bookingId, int $offerId): void {
+    $stmt = $this->pdo->prepare("UPDATE bookings SET selected_offer_id = ? WHERE id = ?");
+    $stmt->execute([$offerId, $bookingId]);
+}
+
+public function updateOffer($booking_id, $driver_id, $offered_price, $message = null)
+{
+    $sql = "UPDATE booking_offers 
+            SET offered_price = :offered_price, 
+                message = :message
+            WHERE booking_id = :booking_id AND driver_id = :driver_id";
+    
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+        ":booking_id" => $booking_id,
+        ":driver_id" => $driver_id,
+        ":offered_price" => $offered_price,
+        ":message" => $message
+    ]);
+}
+
+
 
 }

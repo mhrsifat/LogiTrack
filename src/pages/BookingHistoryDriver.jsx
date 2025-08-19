@@ -40,6 +40,12 @@ const BookingHistoryDriver = () => {
     fetchDriverBookings();
   }, []);
 
+  const handleOpenReoffer = (booking) => {
+    setSelectedBooking(booking);
+    setOfferPrice(booking.offered_price || ""); // prefill price
+    setOfferMessage(booking.message || ""); // prefill message
+  };
+
   const handleSendReoffer = async () => {
     if (!offerPrice) {
       alert("Please enter an offer price.");
@@ -49,12 +55,12 @@ const BookingHistoryDriver = () => {
     setSubmitting(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/booking-offers-driver`, {
+      const response = await fetch(`${BASE_URL}/booking-offers-driver-update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          booking_id: selectedBooking?.id,
+          booking_id: selectedBooking?.booking_id,
           proposed_price: Number(offerPrice),
           message: offerMessage,
         }),
@@ -63,6 +69,16 @@ const BookingHistoryDriver = () => {
       const data = await response.json();
       if (response.ok && data.status) {
         alert("Offer sent successfully!");
+
+        // Update UI immediately without reload
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === selectedBooking.id
+              ? { ...b, offered_price: offerPrice, message: offerMessage }
+              : b
+          )
+        );
+
         setSelectedBooking(null);
         setOfferPrice("");
         setOfferMessage("");
@@ -106,13 +122,18 @@ const BookingHistoryDriver = () => {
               <strong>Status:</strong> {booking.status}
             </p>
             <p>
-              <strong>Offer Price:</strong> {booking.offered_price}
+              <strong>Offer Price:</strong>{" "}
+              {booking.offered_price ? booking.offered_price : "No offer yet"}
             </p>
-            	
+            {booking.message && (
+              <p>
+                <strong>Message:</strong> {booking.message}
+              </p>
+            )}
 
             <button
               className="mt-3 px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={() => setSelectedBooking(booking)}
+              onClick={() => handleOpenReoffer(booking)}
             >
               Re-Offer
             </button>
