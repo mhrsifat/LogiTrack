@@ -182,7 +182,7 @@ const BookingHistory = () => {
 
                     {!isCompletedOrConfirmed && (
                       <motion.div layout className="flex flex-wrap justify-end gap-2 mt-3">
-                        <Link to={`/booking-details?id=${b.id}`} className="text-blue-600 hover:underline">View</Link>
+                        <motion.button onClick={() => navigate(`/offers/${b.id}`)} className="text-blue-600 hover:underline">View</motion.button>
                         {isPending && <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate(`/offers/${b.id}`)} className="text-green-600 hover:underline">View Offers</motion.button>}
                         {!otpOpen && <motion.button whileTap={{ scale: 0.97 }} onClick={() => handleDelete(b.id)} className="text-red-600 hover:underline">Delete</motion.button>}
                         {canReceiveOtp && !otpOpen && (
