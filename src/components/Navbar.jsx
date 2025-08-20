@@ -53,7 +53,7 @@ const Navbar = () => {
       if (mounted && res.status) setUnreadCount(res.data.unread);
     };
     loadCount();
-    const interval = setInterval(loadCount, 300000);
+    const interval = setInterval(loadCount, 5000);
     return () => {
       mounted = false;
       clearInterval(interval);
