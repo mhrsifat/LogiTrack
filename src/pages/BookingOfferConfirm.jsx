@@ -94,6 +94,7 @@ const BookingOfferConfirm = ({ bookingId: propBookingId }) => {
     const paymentData = {
       booking_id: effectiveBookingId,
       amount: numericAmount,
+      selected_offer_id: offerId,
       method: "bkash",
       transaction_id: transactionId,
       paid_at: new Date().toISOString(),

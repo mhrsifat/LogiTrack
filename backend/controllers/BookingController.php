@@ -2,6 +2,7 @@
 require_once __DIR__ . "/../models/Booking.php";
 require_once __DIR__ . "/../core/ResponseHelper.php";
 require_once __DIR__ . "/../core/AccessControl.php";
+require_once __DIR__ . "/../core/Mailer.php";
 
 class BookingController
 {
@@ -225,4 +226,88 @@ class BookingController
 
     return ResponseHelper::success($offers, "Driver's booking offers fetched.");
   }
+
+  public function sendOtp($bookingId)
+{
+    AccessControl::requireRole(["driver"]);
+    $currentUser = AccessControl::getCurrentUser();
+
+    if (!$currentUser) {
+        return ResponseHelper::unauthorized("Driver not logged in.");
+    }
+
+    $booking = $this->bookingModel->getById($bookingId);
+    if (!$booking) {
+        return ResponseHelper::notFound("Booking not found.");
+    }
+
+
+    // Check if a driver offer is selected
+    if (empty($booking["selected_offer_id"])) {
+        return ResponseHelper::badRequest("No selected offer for this booking.");
+    }
+
+    require_once __DIR__ . "/../models/User.php";
+    $userModel = new User();
+    $user = $userModel->findById($booking["user_id"]);
+
+    if (!$user) {
+        return ResponseHelper::notFound("User not found.");
+    }
+
+    // Generate a 6-digit OTP
+    $otp = rand(100000, 999999);
+
+    // Save OTP and expiry (10 minutes)
+    $this->bookingModel->saveOtp($bookingId, $otp, date("Y-m-d H:i:s", strtotime("+10 minutes")));
+
+    // Send OTP via email (assuming Mailer class exists)
+    if (!empty($user["email"])) {
+        $subject = "Your OTP for Booking #{$bookingId}";
+        $message = "Your OTP for confirming booking #{$bookingId} is: $otp";
+        require_once __DIR__ . "/../core/Mailer.php";
+        Mailer::send($user["email"], $subject, $message);
+    }
+
+    return ResponseHelper::success([
+        "otp" => $otp // Optional for testing, remove in production
+    ], "OTP sent successfully. Please check your email.");
+}
+
+public function verifyOtp($bookingId)
+{
+    AccessControl::requireRole(["user"]);
+    $currentUser = AccessControl::getCurrentUser();
+
+    if (!$currentUser) {
+        return ResponseHelper::unauthorized("User not logged in.");
+    }
+
+    $booking = $this->bookingModel->getById($bookingId);
+    if (!$booking) {
+        return ResponseHelper::notFound("Booking not found.");
+    }
+
+    // Check if a user offer is selected
+    if (empty($booking["selected_offer_id"])) {
+        return ResponseHelper::badRequest("No selected offer for this booking.");
+    }
+
+    $data = json_decode(file_get_contents("php://input"), true);
+    $otp = $data["otp"] ?? null;
+
+    if (!$otp) {
+        return ResponseHelper::validationError("OTP is required.");
+    }
+
+    // Verify OTP
+    $isValid = $this->bookingModel->verifyOtp($bookingId, $otp);
+    if ($isValid) {
+        $this->bookingModel->setStatusToCompleted($bookingId);
+        return ResponseHelper::success([], "OTP verified successfully.");
+    } else {
+        return ResponseHelper::error("Invalid OTP.");
+    }
+}
+
 }

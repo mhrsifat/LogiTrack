@@ -45,10 +45,55 @@ class PaymentController
         if ($success) {
             require_once __DIR__ . '/../models/Booking.php';
             $bookingModel = new Booking();
-            $bookingModel->selected_offer_id($success, $data['booking_id']);
+
+            if (!isset($data['selected_offer_id'])) {
+                ResponseHelper::error("Missing selected_offer_id for booking", 400);
+                return;
+            }
+
+            $bookingModel->selected_offer_id($data['booking_id'], $data['selected_offer_id']);
+
             ResponseHelper::success([], "Payment recorded successfully. Wait for Confirmation!", 201);
         } else {
             ResponseHelper::error("Failed to record payment", 500);
         }
     }
+
+    public function approve($id)
+    {
+        $updated = $this->paymentModel->updateStatus($id, 'paid');
+        if ($updated) {
+            ResponseHelper::success([], "Payment approved");
+        } else {
+            ResponseHelper::error("Failed to approve payment", 500);
+        }
+    }
+
+    public function reject($id)
+    {
+        $updated = $this->paymentModel->updateStatus($id, 'failed');
+        if ($updated) {
+            ResponseHelper::success([], "Payment rejected");
+        } else {
+            ResponseHelper::error("Failed to reject payment", 500);
+        }
+    }
+
+    public function getByBookingId($bookingId)
+    {
+        if (!$bookingId) {
+            ResponseHelper::error("Missing booking ID", 400);
+            return;
+        }
+
+        $payment = $this->paymentModel->getLatestPaymentByBookingId($bookingId);
+
+        if ($payment) {
+            ResponseHelper::success($payment);
+        } else {
+            ResponseHelper::success([], "No payment found for this booking");
+        }
+    }
+
+    
 }

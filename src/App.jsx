@@ -61,6 +61,7 @@ import UpdateVehicle from "./pages/UpdateVehicle";
 import AdminDashboard from "./admin/AdminDashboard";
 import SendNotification from "./pages/SendNotification";
 import AdminMessages from "./pages/AdminMessages";
+import AdminPayments from "./admin/AdminPayments";
 
 // App Wrapper with Header/Footer Layout
 const AppWrapper = () => {
@@ -131,6 +132,7 @@ const AppWrapper = () => {
             <Route path="/admin/vehicles/:id" element={<VehicleDetails />} />
             <Route path="/admin/send-notification" element={<SendNotification />} />
             <Route path="/admin/messages" element={<AdminMessages />} />
+            <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
             {/* 404 Fallback */}
             <Route path="*" element={<NotFound />} />

@@ -70,11 +70,14 @@ $router->post('/bookings', 'BookingController@store'); // Create booking request
 $router->put('/bookings/{id}', 'BookingController@update'); // Update booking (optional)
 $router->delete('/bookings/{id}', 'BookingController@destroy'); // Cancel booking
 
+$router->post('/bookings/{id}/send-otp', 'BookingController@sendOtp');
+$router->post('/bookings/{id}/verify-otp', 'BookingController@verifyOtp');
+
 // Offers (sent by driver)
 $router->post('/booking-offers', 'BookingOfferController@store'); // Driver sends offer
 $router->get('/booking-offers/{booking_id}', 'BookingOfferController@getOffersByBooking'); // List all offers for a booking
-//$router->post('/booking-offers/{id}/accept', 'BookingOfferController@acceptOffer'); // User accepts one offer
-//$router->post('/booking-offers/{id}/decline', 'BookingOfferController@declineOffer'); // User declines one offer (optional)
+$router->post('/booking-offers/{offer_id}/accept', 'BookingOfferController@acceptOffer');
+$router->post('/booking-offers/{offer_id}/decline', 'BookingOfferController@declineOffer');
 
 // Booking offers (Driver sends offers)
 $router->post('/booking-offers-driver', 'BookingController@sendOffer');
@@ -90,8 +93,11 @@ $router->get('/bookings-history-driver', 'BookingController@indexBookingHistory'
 | Handle and record payment transactions.
 */
 
-//$router->get('/payments', 'PaymentController@index'); // List all payments
+$router->get('/payments', 'PaymentController@index'); // List all payments
 $router->post('/payments', 'PaymentController@store'); // Record a new payment
+$router->get('/payments/{bookingId}', 'PaymentController@getByBookingId'); // Record a new payment
+$router->post('/payments/{id}/approve', 'PaymentController@approve'); //Admin approve payment
+$router->post('/payments/{id}/reject', 'PaymentController@reject'); // Admin reject
 
 /*
 |--------------------------------------------------------------------------

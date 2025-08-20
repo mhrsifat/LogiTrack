@@ -107,6 +107,14 @@ const Navbar = () => {
                 </li>
                 <li>
                   <Link
+                    to="/admin/payments"
+                    className="hover:text-blue-500 p-2 rounded-lg"
+                  >
+                    Payments
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/admin/messages"
                     className="hover:text-blue-500 p-2 rounded-lg"
                   >

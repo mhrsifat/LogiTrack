@@ -32,23 +32,21 @@ class BookingOfferController
     return ResponseHelper::success([], "Offer submitted successfully.");
   }
 
-  // 📦 Get all offers for a specific booking
- public function getOffersByBooking($bookingId)
+  public function getOffersByBooking($bookingId)
 {
     $stmt = $this->pdo->prepare("
-        SELECT bo.*, u.name AS driver_name, u.phone, u.email
+        SELECT 
+            bo.*, 
+            u.name AS driver_name, 
+            u.phone, 
+            u.email
         FROM booking_offers bo
         JOIN users u ON bo.driver_id = u.id
-        INNER JOIN (
-            SELECT driver_id, MAX(created_at) AS latest_offer
-            FROM booking_offers
-            WHERE booking_id = ?
-            GROUP BY driver_id
-        ) latest ON bo.driver_id = latest.driver_id AND bo.created_at = latest.latest_offer
-        WHERE bo.booking_id = ?;
+        WHERE bo.booking_id = ?
+        ORDER BY bo.created_at DESC
     ");
 
-    $stmt->execute([$bookingId, $bookingId]);
+    $stmt->execute([$bookingId]);
     $offers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     return ResponseHelper::success($offers, "Offers retrieved.");

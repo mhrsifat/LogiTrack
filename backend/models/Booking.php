@@ -143,38 +143,88 @@ class Booking
 
   public function getOffersByDriver($driverId)
 {
-    $sql = "SELECT o.*, b.pickup_address, b.drop_address, b.scheduled_time, b.vehicle_type, b.status AS booking_status
-            FROM booking_offers o
-            JOIN bookings b ON o.booking_id = b.id
-            WHERE o.driver_id = ?
-            ORDER BY o.created_at DESC";
+    $sql = "
+        SELECT 
+            o.*,
+            b.pickup_address,
+            b.drop_address,
+            b.scheduled_time,
+            b.vehicle_type,
+            b.status AS booking_status,
+            b.selected_offer_id,
+            -- latest payment status for the booking (NULL if no payment)
+            (
+                SELECT p.status
+                FROM payments p
+                WHERE p.booking_id = b.id
+                ORDER BY p.created_at DESC
+                LIMIT 1
+            ) AS payment_status,
+            -- is this offer the selected/accepted one? 1 = yes, 0 = no
+            CASE WHEN b.selected_offer_id = o.id THEN 1 ELSE 0 END AS is_selected
+        FROM booking_offers o
+        JOIN bookings b ON o.booking_id = b.id
+        WHERE o.driver_id = ?
+        ORDER BY o.created_at DESC
+    ";
 
     $stmt = $this->pdo->prepare($sql);
     $stmt->execute([$driverId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function selected_offer_id(int $bookingId, int $offerId): void {
+
+
+  function selected_offer_id(int $bookingId, int $offerId): void
+  {
     $stmt = $this->pdo->prepare("UPDATE bookings SET selected_offer_id = ? WHERE id = ?");
     $stmt->execute([$offerId, $bookingId]);
-}
+  }
 
-public function updateOffer($booking_id, $driver_id, $offered_price, $message = null)
-{
+
+  public function updateOffer($booking_id, $driver_id, $offered_price, $message = null)
+  {
     $sql = "UPDATE booking_offers 
             SET offered_price = :offered_price, 
                 message = :message
             WHERE booking_id = :booking_id AND driver_id = :driver_id";
-    
+
     $stmt = $this->pdo->prepare($sql);
     return $stmt->execute([
-        ":booking_id" => $booking_id,
-        ":driver_id" => $driver_id,
-        ":offered_price" => $offered_price,
-        ":message" => $message
+      ":booking_id" => $booking_id,
+      ":driver_id" => $driver_id,
+      ":offered_price" => $offered_price,
+      ":message" => $message
+    ]);
+  }
+
+  public function saveOtp($bookingId, $otp, $expiresAt)
+{
+    $sql = "UPDATE {$this->table} SET otp = :otp, otp_expires_at = :expires_at WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([
+        ":otp" => $otp,
+        ":expires_at" => $expiresAt,
+        ":id" => $bookingId
     ]);
 }
 
+public function verifyOtp($bookingId, $otp)
+{
+    $sql = "SELECT * FROM {$this->table} WHERE id = :id AND otp = :otp AND otp_expires_at > NOW()";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        ":id" => $bookingId,
+        ":otp" => $otp
+    ]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+}
 
+public function setStatusToCompleted($bookingId)
+{
+    $sql = "UPDATE {$this->table} SET status = 'completed' WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    return $stmt->execute([":id" => $bookingId]);
+}
 
 }
