@@ -37,7 +37,6 @@ $router->post('/change-email', 'AuthController@updateemail'); // Change user's e
 */
 
 $router->get('/users', 'UserController@index'); // List all users
-//$router->get('/users/{id}', 'UserController@show'); // Show single user info
 $router->put('/users/{id}', 'UserController@update'); // Update user info
 $router->delete('/users/{id}', 'UserController@destroy'); // Delete user
 
@@ -99,15 +98,6 @@ $router->get('/payments/{bookingId}', 'PaymentController@getByBookingId'); // Re
 $router->post('/payments/{id}/approve', 'PaymentController@approve'); //Admin approve payment
 $router->post('/payments/{id}/reject', 'PaymentController@reject'); // Admin reject
 
-/*
-|--------------------------------------------------------------------------
-| ⭐ Ratings & Reviews (User)
-|--------------------------------------------------------------------------
-| Submit and fetch ratings for completed trips.
-*/
-
-//$router->get('/ratings', 'RatingController@index'); // List all ratings
-//$router->post('/ratings', 'RatingController@store'); // Submit a new rating
 
 /*
 |--------------------------------------------------------------------------
@@ -144,7 +134,6 @@ $router->post('/support-tickets', 'SupportTicketController@store'); // Submit a 
 $router->put('/support-tickets/{id}', 'SupportTicketController@update'); // Update a ticket
 $router->put('/support-tickets-admin/{id}', 'SupportTicketController@updateForAdmin'); // Update a ticket for admin
 $router->delete('/support-tickets/{id}', 'SupportTicketController@destroy'); // Delete a ticket
-// Fetch all messages for a ticket (GET /support-tickets/{ticketId}/messages)
 $router->get(
     '/support-tickets/{ticketId}/messages',
     'SupportTicketController@getMessages'
