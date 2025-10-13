@@ -18,12 +18,22 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies and build
+      - name: Install dependencies and build (frontend)
         run: |
-          npm install
+          npm ci
           npm run build
 
-      - name: Deploy to server via SSH
+      - name: Upload dist to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "/home/mhrsifa1/logitrack.mhrsifat.xyz/"
+
+      - name: Update backend via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -31,11 +41,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            source /home/mhrsifa1/nodevenv/lt.mhrsifat.xyz/22/bin/activate
             cd /home/mhrsifa1/lt.mhrsifat.xyz
             git pull origin main
-            npm install
-            npm run build
-            rm -rf /home/mhrsifa1/logitrack.mhrsifat.xyz/*
-            cp -r dist/* /home/mhrsifa1/logitrack.mhrsifat.xyz/
-            
+           
