@@ -13,8 +13,9 @@ class DriverApplicationController
   public function __construct()
   {
     $this->userModel = new User();
-    $this->vehicleDocumentModel = new VehicleDocument();
     $this->pdo = User::connectDatabase();
+    // pass the same PDO so VehicleDocument uses same DB connection/transaction
+    $this->vehicleDocumentModel = new VehicleDocument($this->pdo);
   }
 
   public function applyDriver()
@@ -86,10 +87,10 @@ class DriverApplicationController
     ];
 
     try {
-      // Start transaction
+      // Start transaction on the shared PDO
       $this->pdo->beginTransaction();
 
-      // Create user
+      // Create user (returns user id)
       $driverId = $this->userModel->createdriver($userData);
       if (!$driverId) {
         $this->pdo->rollBack();
@@ -97,13 +98,15 @@ class DriverApplicationController
         return;
       }
 
-      // Upload documents
+      // Upload documents using same PDO (so DB inserts are atomic with user creation)
       $uploadResult = $this->vehicleDocumentModel->uploadDocuments(
         $driverId,
         $vehicleType,
         $documents
       );
+
       if (!$uploadResult["status"]) {
+        // if any file upload/db insert failed rollback entire transaction
         $this->pdo->rollBack();
         ResponseHelper::error(
           "Document upload failed: " . implode(", ", $uploadResult["errors"])
@@ -112,7 +115,7 @@ class DriverApplicationController
       }
 
       // Send verification email
-      $verifyUrl = $_ENV["Frontend_URL"] . "/verify-email?token=" . $emailToken;
+      $verifyUrl = rtrim($_ENV["Frontend_URL"] ?? '', '/') . "/verify-email?token=" . $emailToken;
       $subject = "Verify your email address";
       $message = "Hi $name,\n\nPlease verify your email by clicking this link: $verifyUrl\n\nThank you.";
 
@@ -125,7 +128,10 @@ class DriverApplicationController
         "Driver registration and application successful. Please check your email to verify your account."
       );
     } catch (Exception $e) {
-      $this->pdo->rollBack();
+      // rollback on any exception
+      if ($this->pdo->inTransaction()) {
+        $this->pdo->rollBack();
+      }
       ResponseHelper::error("Something went wrong: " . $e->getMessage());
     }
   }
