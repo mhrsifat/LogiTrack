@@ -28,3 +28,4 @@ backend/Plan
 backend/cornjob.php
 reference
 .htaccess
+*.env
