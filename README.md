@@ -9,9 +9,8 @@
 - User registration and authentication (customer, driver, admin roles)
 - Vehicle registration and management
 - Booking system with dynamic pricing
-- Payment integration and history
 - Ratings and reviews for trips
-- Real-time notifications (push, email, SMS)
+- Real-time notifications (email)
 - Support ticketing system
 - Vehicle document tracking (license, insurance, etc.)
 
@@ -26,3 +25,8 @@
 
 ---
 
+## Credentials
+  Admin: noman 123456
+  Driver: driver 123456
+  User: mhrsifat 123456
+---
