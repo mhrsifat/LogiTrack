@@ -43,9 +43,9 @@ Demo Credentials
 
 Role	Username	Password
 
-Admin	noman	123456
-Driver	driver	123456
-User	mhrsifat	123456
+Admin:	noman	123456
+Driver:	driver	123456
+User:	mhrsifat	123456
 
 
 
