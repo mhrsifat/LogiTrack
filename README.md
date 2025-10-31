@@ -1,52 +1,102 @@
-# LogiTrack
+LogiTrack
 
-**LogiTrack** is a modern logistics service application for trucks and pickups, built with React frontend and PHP backend. It allows customers to book vehicles, drivers to manage their fleet, and admins to oversee operations seamlessly.
+LogiTrack is a professional fleet and vehicle booking system designed for logistics. It enables customers to book trucks or pickups, drivers to manage their fleet and offers, and admins to efficiently oversee operations. Built with React on the frontend and PHP on the backend, it demonstrates full-stack workflows, real-time notifications, and multi-role user management.
+
 
 ---
 
-## Features
+Features
 
-- User registration and authentication (customer, driver, admin roles)
-- Vehicle registration and management
-- Booking system with dynamic pricing
-- Ratings and reviews for trips
-- Real-time notifications (email)
-- Support ticketing system
-- Vehicle document tracking (license, insurance, etc.)
+Multi-role authentication (customer, driver, admin)
+
+Vehicle registration and fleet management
+
+Booking system with dynamic driver offers
+
+Email notifications for bookings and updates
+
+Support ticketing system for users and admins
+
+Vehicle document management (licenses, insurance, etc.)
+
+Admin dashboard for users, vehicles, and bookings
+
+
 
 ---
 
-## Tech Stack
+Tech Stack
 
-- Frontend: React.js, Tailwind CSS, React Router
-- Backend: PHP (custom API)
-- Database: MySQL / MariaDB
-- API Communication: Axios with JWT/session authentication
+Frontend: React.js, Tailwind CSS, React Router
+
+Backend: PHP (custom API)
+
+Database: MySQL / MariaDB
+
+API Communication: Axios with session-based authentication
+
+
 
 ---
 
-## Credentials
-  Admin: noman 123456
-  
-  Driver: driver 123456
-  
-  User: mhrsifat 123456
-  
+Demo Credentials
+
+Role	Username	Password
+
+Admin	noman	123456
+Driver	driver	123456
+User	mhrsifat	123456
+
+
+
 ---
 
-## ScreenShot
+Screenshots
 
-  
-![Image 1](Screenshot/Screenshot_1.png)
-
-
-![Image 2](Screenshot/Screenshot_2.png)
-
-
-![Image 3](Screenshot/Screenshot_3.png)
-
-
-![Image 4](Screenshot/Screenshot_4.png)
-  
+<div align="center">
+<img src="Screenshot/Screenshot_1.png" alt="Screenshot 1" width="300" />
+<img src="Screenshot/Screenshot_2.png" alt="Screenshot 2" width="300" />
+<img src="Screenshot/Screenshot_3.png" alt="Screenshot 3" width="300" />
+<img src="Screenshot/Screenshot_4.png" alt="Screenshot 4" width="300" />
+</div>
 ---
 
+Getting Started
+
+1. Clone the repository:
+
+
+
+git clone https://github.com/yourusername/logitrack.git
+
+2. Install frontend dependencies:
+
+
+
+cd frontend
+npm install
+npm start
+
+3. Set up backend:
+
+
+
+Import the database schema in MySQL/MariaDB
+
+Configure config.php or .env with database credentials
+
+Start the PHP server or deploy via Apache/Nginx
+
+
+4. Access the app at http://localhost:3000.
+
+
+
+
+---
+
+Notes
+
+LogiTrack is primarily a learning project for React and full-stack PHP development.
+
+Some features may be simplified and are not fully production-ready.
